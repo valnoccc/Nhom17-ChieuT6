@@ -1,15 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trang chủ</title>
+    <title>Khách hàng</title>
 </head>
 
 <body>
-    <h1>Chào mừng đến với trang chủ!</h1>
-    <p>Đây là trang chủ của người dùng.</p>
+    <h1>Danh sách Sinh viên (View dành cho User)</h1>
+    <ul id="list"></ul>
+
+    <script>
+        const API_URL = "hhttps://nhom17-chieut6.onrender.com/api/sinhvien";
+        fetch(API_URL)
+            .then(res => res.json())
+            .then(data => {
+                const html = data.map(sv => `<li>${sv.name} - ${sv.mssv}</li>`).join('');
+                document.getElementById('list').innerHTML = html;
+            });
+    </script>
 </body>
 
 </html>

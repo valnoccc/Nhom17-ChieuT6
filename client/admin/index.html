@@ -1,15 +1,45 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trang quản trị</title>
+    <title>Quản trị hệ thống</title>
 </head>
 
 <body>
-    <h1>Trang quản trị</h1>
-    <p>Đây là trang quản trị dành cho admin.</p>
+    <h1>Quản lý Sinh viên (Admin)</h1>
+    <input type="text" id="name" placeholder="Tên SV">
+    <button onclick="addSV()">Thêm mới</button>
+    <hr>
+    <div id="admin-list"></div>
+
+    <script>
+        const API_URL = "https://nhom17-chieut6.onrender.com/api/sinhvien";
+
+        async function loadData() {
+            const res = await fetch(API_URL);
+            const data = await res.json();
+            document.getElementById('admin-list').innerHTML = data.map(sv =>
+                `<div>${sv.name} <button onclick="deleteSV('${sv.id}')">Xóa</button></div>`
+            ).join('');
+        }
+
+        async function addSV() {
+            const name = document.getElementById('name').value;
+            await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: name })
+            });
+            loadData();
+        }
+
+        async function deleteSV(id) {
+            await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+            loadData();
+        }
+
+        loadData();
+    </script>
 </body>
 
 </html>
