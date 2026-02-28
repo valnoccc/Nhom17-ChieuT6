@@ -1,22 +1,89 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 
 <head>
-    <title>Khách hàng</title>
+    <meta charset="UTF-8">
+    <title>Trang chủ người dùng - Nhóm 17</title>
+    <style>
+        /* CSS đơn giản để bảng trông đẹp hơn */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+    </style>
 </head>
 
 <body>
-    <h1>Danh sách Sinh viên (View dành cho User)</h1>
-    <ul id="list"></ul>
+    <h1>Danh sách Người dùng (View dành cho User)</h1>
+
+    <table id="userTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Họ và Tên</th>
+                <th>Email</th>
+                <th>Số điện thoại</th>
+                <th>Ngày tạo</th>
+            </tr>
+        </thead>
+        <tbody id="list">
+        </tbody>
+    </table>
 
     <script>
-        const API_URL = "https://nhom17-chieut6.onrender.com/api/sinhvien";
-        fetch(API_URL)
-            .then(res => res.json())
-            .then(data => {
-                const html = data.map(sv => `<li>${sv.name} - ${sv.mssv}</li>`).join('');
-                document.getElementById('list').innerHTML = html;
-            });
+        // Đường dẫn API từ Render
+        const API_URL = "https://nhom17-chieut6.onrender.com/api/users";
+
+        //API_URL tạm thời để test local
+        //const API_URL = "http://localhost:10000/api/users";
+
+        async function fetchData() {
+            try {
+                const res = await fetch(API_URL);
+                if (!res.ok) throw new Error("Lỗi kết nối server");
+                const users = await res.json();
+
+                const tbody = document.querySelector("#list"); // ID list trong thẻ <tbody>
+                tbody.innerHTML = users.map(u => `
+                <tr>
+                    <td>${u.id}</td>
+                    <td>${u.name}</td>
+                    <td>${u.email}</td>
+                    <td>${u.phone || 'N/A'}</td>
+                    <td>${new Date(u.created_at).toLocaleDateString('vi-VN')}</td>
+                </tr>
+            `).join('');
+            } catch (error) {
+                console.error("Lỗi:", error);
+            }
+        }
+        fetchData();
     </script>
 </body>
 
