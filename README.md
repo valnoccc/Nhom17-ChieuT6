@@ -1,4 +1,4 @@
-# Nhóm 17 - Xây dựng website kinh đoanh dồ gia dụng
+# Nhóm 17 - Xây dựng website kinh đoanh đồ gia dụng
 
 Đồ án môn học Lập trình Web của Nhóm 17 - Chiều Thứ 6. Hệ thống sử dụng mô hình Monorepo để quản lý cả Frontend và Backend trong một kho lưu trữ duy nhất.
 
