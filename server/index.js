@@ -22,6 +22,10 @@ const db = mysql.createConnection({
 
 app.set('db', db); // Chia sẻ kết nối db cho các controller
 
+app.get('/', (req, res) => {
+    res.send('Backend Nhóm 17 đang hoạt động ổn định!');
+});
+
 // Sử dụng Routes đã tách
 app.use('/api/users', userRoute);
 app.use('/', adminRoute);
