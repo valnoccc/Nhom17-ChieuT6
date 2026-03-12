@@ -24,7 +24,7 @@ app.set('db', db); // Chia sẻ kết nối db cho các controller
 
 // Sử dụng Routes đã tách
 app.use('/api/users', userRoute);
-app.use('/api/admin', adminRoute);
+app.use('/', adminRoute);
 
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => console.log(`Server chạy tại port ${PORT}`));
