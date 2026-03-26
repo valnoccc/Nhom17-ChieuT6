@@ -1,54 +1,71 @@
-// components/Users/UserList.jsx
 import React, { useState, useEffect } from 'react';
-import { adminAPI } from '../../services/api';
+
 
 function UserList() {
   const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+  const [formData, setFormData] = useState({ id: '', name: '', email: '', phone: '' });
+  const [isEditing, setIsEditing] = useState(false);
+  const BASE_URL = "https://nhom17-chieut6.onrender.com"; // URL Backend Render
 
   const fetchUsers = async () => {
-    try {
-      const data = await adminAPI.getAllUsers();
-      setUsers(data);
-      setLoading(false);
-    } catch (err) {
-      setError('Failed to load users');
-      setLoading(false);
-    }
+    const res = await fetch(`${BASE_URL}/users`);
+    const data = await res.json();
+    setUsers(data);
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Delete this user?')) {
-      await adminAPI.deleteUser(id);
-      fetchUsers(); // Refresh list
-    }
+  useEffect(() => { fetchUsers(); }, []);
+
+  const saveUser = async (e) => {
+    e.preventDefault();
+    const url = isEditing ? `${BASE_URL}/update/${formData.id}` : `${BASE_URL}/add`;
+    const method = isEditing ? 'PUT' : 'POST';
+
+    await fetch(url, {
+      method: method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData)
+    });
+
+    setFormData({ id: '', name: '', email: '', phone: '' });
+    setIsEditing(false);
+    fetchUsers();
   };
 
-  if (loading) return <div>Loading users...</div>;
-  if (error) return <div>Error: {error}</div>;
+  const deleteUser = async (id) => {
+    if (window.confirm("Xác nhận xóa?")) {
+      await fetch(`${BASE_URL}/delete/${id}`, { method: 'DELETE' });
+      fetchUsers();
+    }
+  };
 
   return (
-    <div>
-      <h2>User Management</h2>
+    <div className="container">
+      <h1>Quản lý Người dùng</h1>
+      <form onSubmit={saveUser} className="form-group">
+        <input type="text" placeholder="Tên" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} required />
+        <input type="email" placeholder="Email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} required />
+        <input type="text" placeholder="SĐT" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
+        <button type="submit" className={isEditing ? "btn-edit" : "btn-add"}>
+          {isEditing ? "Cập nhật" : "Thêm mới"}
+        </button>
+      </form>
+
       <table>
         <thead>
-          <tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Actions</th></tr>
+          <tr>
+            <th>Tên</th>
+            <th>Email</th>
+            <th>Thao tác</th>
+          </tr>
         </thead>
         <tbody>
-          {users.map(user => (
-            <tr key={user.id}>
-              <td>{user.id}</td>
-              <td>{user.name}</td>
-              <td>{user.email}</td>
-              <td>{user.phone}</td>
+          {users.map(u => (
+            <tr key={u.id}>
+              <td>{u.name}</td>
+              <td>{u.email}</td>
               <td>
-                <button>Edit</button>
-                <button onClick={() => handleDelete(user.id)}>Delete</button>
+                <button className="btn-edit" onClick={() => { setFormData(u); setIsEditing(true); }}>Sửa</button>
+                <button className="btn-delete" onClick={() => deleteUser(u.id)}>Xóa</button>
               </td>
             </tr>
           ))}
@@ -57,3 +74,5 @@ function UserList() {
     </div>
   );
 }
+
+export default UserList;
