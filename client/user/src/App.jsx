@@ -1,45 +1,19 @@
-import { useEffect, useState } from 'react';
-import './App.css';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import HomePage from './pages/Home/HomePage';
+import RegisterPage from './pages/Register/RegisterPage';
+// THÊM DÒNG NÀY: Import trang Login
+import LoginPage from './pages/Login/LoginPage'; 
 
 function App() {
-  const [users, setUsers] = useState([]);
-  const BASE_URL = "https://nhom17-chieut6.onrender.com"; // URL Backend Render
-
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const res = await fetch(`${BASE_URL}/users`); // Gọi API lấy tất cả user
-        const data = await res.json();
-        setUsers(data);
-      } catch (error) {
-        console.error("Lỗi lấy dữ liệu:", error);
-      }
-    };
-    fetchUsers();
-  }, []);
-
   return (
-    <div className="container">
-      <h1>Danh sách Người dùng (View User)</h1>
-      <table>
-        <thead>
-          <tr>
-            <th>Tên</th>
-            <th>Email</th>
-            <th>Điện thoại</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map(u => (
-            <tr key={u.id}>
-              <td>{u.name}</td>
-              <td>{u.email}</td>
-              <td>{u.phone || 'N/A'}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/login" element={<LoginPage />} />
+      </Routes>
+    </Router>
   );
 }
 
