@@ -9,4 +9,8 @@ router.post('/register', userController.register);
 // Protected routes (cần authentication - có thể thêm middleware sau)
 router.get('/', userController.getAllUsers);
 
+//dang nhap
+router.post('/login', userController.login);
+//dang ky
+router.post('/register', userController.register);
 module.exports = router;

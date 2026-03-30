@@ -1,36 +1,35 @@
 require('dotenv').config();
 const express = require('express');
-const mysql = require('mysql2');
+const mysql = require('mysql2/promise'); // SỬA: Dùng trực tiếp bản promise
 const cors = require('cors');
 const app = express();
 
+// 1. IMPORT ROUTES
 const userRoute = require('./routes/user/user.route');
 const adminRoute = require('./routes/admin/admin.route');
+const productRoute = require('./routes/product/product.router');
+const cartRoute = require('./routes/cart/cart.route');
+const orderRoute = require('./routes/order/order.route');
 
+// 2. MIDDLEWARES (Phải đặt trước Routes)
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Cấu hình kết nối TiDB Cloud
-const db = mysql.createConnection({
+// Middleware Debug: Giúp cậu xem request nào đang bay vào server
+app.use((req, res, next) => {
+    console.log(`>>> [${req.method}] ${req.url}`);
+    next();
+});
+
+// 3. CẤU HÌNH KẾT NỐI TIDB CLOUD (Dùng Pool chuyên cho Promise)
+const db = mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     port: process.env.DB_PORT,
-    ssl: { minVersion: 'TLSv1.2', rejectUnauthorized: true },
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
-});
-
-// Kiểm tra kết nối database
-db.connect((err) => {
-    if (err) {
-        console.error('Lỗi kết nối database:', err);
-        process.exit(1);
-    }
-    console.log('✓ Kết nối TiDB Cloud thành công!');
+    ssl: { minVersion: 'TLSv1.2', rejectUnauthorized: true }
 });
 
 app.set('db', db); // Chia sẻ kết nối db cho các controller
@@ -49,25 +48,6 @@ app.get('/', (req, res) => {
 // Sử dụng Routes đã tách
 app.use('/api/users', userRoute);
 app.use('/', adminRoute);
-
-// Error handling middleware
-app.use((err, req, res, next) => {
-    console.error('Lỗi server:', err);
-    res.status(500).json({
-        success: false,
-        message: 'Lỗi server nội bộ',
-        error: err.message
-    });
-});
-
-// 404 handler
-app.use((req, res) => {
-    res.status(404).json({
-        success: false,
-        message: 'API endpoint không tồn tại',
-        path: req.path
-    });
-});
 
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
