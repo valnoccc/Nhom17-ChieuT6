@@ -1,59 +1,100 @@
-import React from "react";
-// ĐÃ THÊM: Import thư viện Link để chuyển trang không bị load lại web
-import { Link } from "react-router-dom"; 
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom"; 
 import {
   FaSearch,
   FaShoppingCart,
   FaPhoneAlt,
   FaRegUser,
   FaBars,
+  FaTimes,
+  FaRegEnvelope
 } from "react-icons/fa";
+import { useCart } from "../../context/CartContext";
 
 const Header = () => {
+  const { cartItems } = useCart(); 
+  const totalItems = cartItems.reduce((total, item) => total + item.quantity, 0);
+  
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  // ================= STATE & HÀM TÌM KIẾM =================
+  const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
+
+  const handleSearch = (e) => {
+    e.preventDefault(); // Chặn load lại trang khi bấm Enter
+    if (searchQuery.trim()) {
+      // Đẩy người dùng sang trang danh sách sản phẩm kèm từ khóa tìm kiếm trên URL
+      navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+      setIsMobileMenuOpen(false); // Đóng menu mobile nếu đang mở
+    }
+  };
+
+  const handleQuickSearch = (keyword) => {
+    setSearchQuery(keyword);
+    navigate(`/products?search=${encodeURIComponent(keyword)}`);
+  };
+  // =======================================================
+
   return (
-    <header className="w-full font-sans bg-[#f5f5f5]">
-      {/* 🔴 TOP PROMO */}
-      <div className="bg-[#d71920] text-white text-[15px] py-2">
-        <div className="max-w-[1200px] mx-auto px-4 flex justify-between items-center">
-          <span className="font-medium tracking-wide">
-            🎁 Chào mừng bạn tới Elmich - Ưu đãi tháng này!
-          </span>
-          <button className="bg-white text-[#d71920] px-5 py-1.5 rounded-full text-sm font-bold hover:bg-yellow-300 hover:text-red-700 transition-colors shadow-sm">
+    <header className="w-full font-sans bg-white relative z-50">
+      {/* 🔴 1. TOP BAR */}
+      <div className="bg-[#ed1c24] text-white text-[14px] py-2">
+        <div className="max-w-[1440px] mx-auto px-4 flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <span role="img" aria-label="gift">🎁</span>
+            <span className="font-medium">Chào mừng bạn tới Elmich - Ưu đãi tháng này!</span>
+          </div>
+          <button className="bg-white text-[#ed1c24] px-4 py-1 rounded-full text-[12px] font-bold hover:bg-gray-100 transition-colors uppercase shadow-sm">
             XEM NGAY
           </button>
         </div>
       </div>
 
-      {/* ⚪ HEADER MAIN */}
-      <div className="bg-white shadow-sm">
-        <div className="max-w-[1200px] mx-auto px-4 py-5 flex items-center gap-8">
-          {/* LOGO */}
-          <Link to="/">
-            <h1 className="text-[44px] font-black text-[#ed1c24] italic tracking-tighter cursor-pointer hover:scale-105 transition-transform">
-              elmich
-            </h1>
+      {/* ⚪ 2. MAIN HEADER */}
+      <div className="border-b border-gray-100">
+        <div className="max-w-[1440px] mx-auto px-4 py-4 flex items-center justify-between gap-4">
+          
+          {/* NÚT MENU MOBILE */}
+          <button 
+            className="md:hidden text-[#ed1c24] text-[24px]"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            {isMobileMenuOpen ? <FaTimes /> : <FaBars />}
+          </button>
+
+          {/* LEFT: LOGO */}
+          <Link to="/" className="flex-shrink-0">
+            <div className="flex flex-col items-start">
+               <h1 className="text-[36px] md:text-[42px] font-black text-[#ed1c24] italic tracking-tighter leading-none hover:opacity-80 transition-opacity">
+                elmich
+              </h1>
+            </div>
           </Link>
 
-          {/* SEARCH */}
-          <div className="flex-1 max-w-[650px]">
-            <div className="flex border-[2px] border-[#ed1c24] rounded-full overflow-hidden h-[46px] bg-white hover:shadow-md transition-shadow">
+          {/* MIDDLE: SEARCH BAR (PC) */}
+          <div className="hidden md:flex flex-1 max-w-[600px] flex-col mx-4 lg:mx-10">
+            <form onSubmit={handleSearch} className="flex border-[1px] border-gray-300 rounded-full overflow-hidden h-[42px] bg-white focus-within:border-[#ed1c24] transition-colors group shadow-sm">
               <input
                 type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Nhập tên hoặc mã sản phẩm..."
-                className="flex-1 px-5 text-[15px] outline-none text-gray-700"
+                className="flex-1 px-5 text-[14px] outline-none text-gray-700 bg-transparent"
               />
-              <button className="bg-[#ed1c24] text-white px-8 text-[16px] font-bold hover:bg-red-800 transition-colors flex items-center justify-center">
-                <FaSearch />
+              <button type="submit" className="px-5 text-gray-400 group-hover:text-[#ed1c24] transition-colors hover:bg-gray-50">
+                <FaSearch size={18} />
               </button>
-            </div>
-
-            {/* SUGGEST */}
-            <div className="flex gap-3 mt-3 text-[13px] font-medium">
-              <span className="text-gray-500">Top tìm kiếm:</span>
-              {["Nồi inox", "Máy hút ẩm", "Thay lõi lọc"].map((item, i) => (
-                <span
-                  key={i}
-                  className="bg-gray-100 px-3 py-1 rounded-full text-gray-700 hover:bg-[#ed1c24] hover:text-white cursor-pointer transition-colors"
+            </form>
+            
+            {/* Top Tìm Kiếm */}
+            <div className="flex items-center gap-2 mt-2 text-[12px]">
+              <span className="text-gray-500 font-bold">Top Tìm Kiếm:</span>
+              {["Nồi Inox", "Máy hút ẩm", "Thay lõi lọc"].map((item, i) => (
+                <span 
+                  key={i} 
+                  onClick={() => handleQuickSearch(item)}
+                  className="bg-[#d57171] text-white px-3 py-0.5 rounded-full cursor-pointer hover:bg-red-600 transition-colors shadow-sm"
                 >
                   {item}
                 </span>
@@ -61,69 +102,86 @@ const Header = () => {
             </div>
           </div>
 
-          {/* RIGHT ICONS */}
-          <div className="flex items-center gap-8 ml-auto">
-            {/* HOTLINE */}
-            <div className="hidden lg:flex items-center gap-3 group cursor-pointer">
-              <div className="bg-red-100 p-3 rounded-full text-[#ed1c24] group-hover:bg-[#ed1c24] group-hover:text-white transition-colors">
-                <FaPhoneAlt size={18} />
-              </div>
-              <div>
-                <p className="text-gray-500 text-[13px] font-medium">Hotline mua hàng</p>
-                <p className="font-extrabold text-[#ed1c24] text-[18px] group-hover:scale-105 transition-transform origin-left">
-                  1900 636 925
-                </p>
+          {/* RIGHT: HOTLINE - ACCOUNT - CART */}
+          <div className="flex items-center gap-4 lg:gap-7">
+            <div className="hidden xl:flex items-center gap-2 hover:text-[#ed1c24] cursor-pointer transition-colors">
+              <FaPhoneAlt className="text-gray-700" size={16} />
+              <div className="flex flex-col leading-none">
+                <span className="text-[12px] text-gray-500">Hotline</span>
+                <span className="text-[14px] font-bold">1900636925</span>
               </div>
             </div>
 
-            {/* ================= ACCOUNT (ĐÃ SỬA TẠI ĐÂY) ================= */}
-            <div className="flex items-center gap-2 group">
-              <FaRegUser size={22} className="text-gray-600 group-hover:text-[#ed1c24] group-hover:-translate-y-1 transition-all duration-300" />
-              <div className="flex flex-col text-[13.5px] font-medium leading-tight">
-                {/* Link sang trang Đăng nhập */}
-                <Link to="/login" className="text-gray-800 hover:text-[#ed1c24] transition-colors">Đăng nhập</Link>
-                {/* Link sang trang Đăng ký */}
-                <Link to="/register" className="text-gray-800 hover:text-[#ed1c24] transition-colors">Đăng ký</Link>
+            <div className="hidden xl:flex items-center gap-2 hover:text-[#ed1c24] cursor-pointer transition-colors">
+              <FaRegEnvelope className="text-gray-700" size={18} />
+              <div className="flex flex-col leading-none">
+                <span className="text-[12px] text-gray-500">Email</span>
+                <span className="text-[14px] font-bold">cskh@elmich.vn</span>
               </div>
             </div>
-            {/* ========================================================== */}
 
-            {/* CART */}
-            <div className="relative flex flex-col items-center text-gray-600 hover:text-[#ed1c24] cursor-pointer group">
-              <FaShoppingCart size={22} className="group-hover:-translate-y-1 transition-transform duration-300" />
-              <span className="text-[14px] font-medium mt-1">Giỏ hàng</span>
-              <span className="absolute -top-2 -right-3 bg-[#ed1c24] text-white text-[12px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white group-hover:scale-110 transition-transform">
-                0
-              </span>
+            <div className="flex items-center gap-2 group cursor-pointer">
+              <div className="w-9 h-9 border border-gray-200 rounded-full flex items-center justify-center group-hover:border-[#ed1c24] group-hover:bg-red-50 transition-colors">
+                <FaRegUser size={18} className="text-gray-700 group-hover:text-[#ed1c24]" />
+              </div>
+              <div className="hidden lg:flex flex-col text-[13px] leading-tight font-bold">
+                <Link to="/login" className="hover:text-[#ed1c24] transition-colors">Đăng nhập</Link>
+                <Link to="/register" className="hover:text-[#ed1c24] transition-colors">Đăng ký</Link>
+              </div>
             </div>
+
+            <Link to="/cart" className="relative group">
+              <div className="flex items-center gap-2">
+                <div className="relative">
+                  <FaShoppingCart size={24} className="text-gray-800 group-hover:text-[#ed1c24] transition-colors" />
+                  <span className="absolute -top-2 -right-2 bg-[#ed1c24] text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
+                    {totalItems}
+                  </span>
+                </div>
+                <span className="hidden lg:block text-[13px] font-bold text-gray-800 group-hover:text-[#ed1c24] transition-colors">Giỏ hàng</span>
+              </div>
+            </Link>
           </div>
+        </div>
+        
+        {/* THANH TÌM KIẾM CHO MOBILE */}
+        <div className="md:hidden px-4 pb-4">
+            <form onSubmit={handleSearch} className="flex border border-[#ed1c24] rounded-full overflow-hidden h-[40px] shadow-sm focus-within:ring-2 focus-within:ring-red-100">
+                <input 
+                  type="text" 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Tìm kiếm..." 
+                  className="flex-1 px-4 text-[14px] outline-none" 
+                />
+                <button type="submit" className="bg-[#ed1c24] text-white px-5 active:bg-red-800 transition-colors">
+                  <FaSearch />
+                </button>
+            </form>
         </div>
       </div>
 
-      {/* 🔴 NAVBAR */}
-      <nav className="bg-[#ed1c24]">
-        <div className="max-w-[1200px] mx-auto flex items-center">
-          {/* CATEGORY BUTTON */}
-          <div className="flex items-center gap-3 bg-[#c8161e] text-white px-5 py-4 text-[15px] font-bold cursor-pointer hover:bg-black hover:text-white transition-colors whitespace-nowrap">
-            <FaBars size={17} />
-            TẤT CẢ SẢN PHẨM
-          </div>
+      {/* 🔴 3. NAVBAR */}
+      <nav className={`bg-[#ed1c24] ${isMobileMenuOpen ? 'block absolute w-full shadow-lg z-40' : 'hidden'} md:block`}>
+        <div className="max-w-[1440px] mx-auto flex flex-col md:flex-row">
+          
+          <Link to="/products" className="bg-[#c8161e] text-white px-6 py-3 flex items-center gap-3 font-bold text-[14px] hover:bg-black transition-colors shadow-inner">
+            <FaBars /> TẤT CẢ SẢN PHẨM
+          </Link>
 
-          {/* MENU ITEMS */}
-          <ul className="flex flex-1 justify-end lg:justify-between text-[13px] xl:text-[14px] font-bold uppercase tracking-wide whitespace-nowrap px-2">
+          <ul className="flex flex-col md:flex-row flex-1 text-white font-bold text-[13px] uppercase tracking-tight">
             {[
-              "Trang chủ",
-              "Tháng của Nàng",
-              "BST Chạm Vào Xanh",
-              "Bảo hành",
-              "Hệ thống cửa hàng",
-              "Tin tức",
+              { name: "Trang chủ", link: "/" },
+              { name: "Tháng của Nàng", link: "#" },
+              { name: "BST Chạm Vào Xanh", link: "#" },
+              { name: "Bảo hành", link: "#" },
+              { name: "Hệ thống cửa hàng", link: "#" },
+              { name: "Tin tức", link: "#" },
             ].map((item, index) => (
-              <li
-                key={index}
-                className="px-4 py-4 cursor-pointer text-white hover:bg-white hover:text-[#ed1c24] transition-all duration-300 flex items-center justify-center"
-              >
-                {item}
+              <li key={index} className="border-b border-red-500/30 md:border-none">
+                <Link to={item.link} className="block px-4 py-3 md:py-4 hover:bg-white hover:text-[#ed1c24] transition-all">
+                  {item.name}
+                </Link>
               </li>
             ))}
           </ul>

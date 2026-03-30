@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaFacebook, FaTiktok, FaYoutube, FaAngleUp, FaPhoneAlt, FaFacebookMessenger } from 'react-icons/fa';
 
-// IMPORT ẢNH THẬT TỪ THƯ MỤC IMAGES (Lùi 2 cấp: ../../)
+// IMPORT ẢNH 
 import logoElmich from '../../images/logo_elmich.png';
 import logoShopee from '../../images/logo_shopee.png';
 import payment1 from '../../images/payment-1.png';

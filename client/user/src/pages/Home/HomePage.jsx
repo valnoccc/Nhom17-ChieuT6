@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion'; 
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
 import HeroBanner from './components/HeroBanner';
@@ -6,6 +7,7 @@ import BlogSection from './components/BlogSection';
 import FeaturedCategories from './components/FeaturedCategories';
 import FlashSale from './components/FlashSale';
 import ProductGrid from './components/ProductGrid';
+import PageWrapper from '../../components/layout/PageWrapper'; 
 
 // IMPORT ẢNH BANNER VÀ ẢNH SẢN PHẨM
 import sideBannerBinh from '../../images/banner2.jpg'; 
@@ -23,41 +25,51 @@ const HomePage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#f5f5f5] font-sans">
-      <Header />
-      <main>
-        <HeroBanner />
-        <FeaturedCategories />
-        <FlashSale />
+    <PageWrapper>
+      <div className="min-h-screen bg-[#f5f5f5] font-sans">
+        <Header />
         
-        <div className="w-full">
-            {/* Khối Bình Giữ Nhiệt */}
+        <main>
+          <HeroBanner />
+          <section className="py-4">
+             <FeaturedCategories />
+          </section>
+          <FlashSale />
+          
+          <div className="w-full">
             <ProductGrid 
                 title="Bình giữ nhiệt" 
                 products={sampleProducts} 
                 bannerImg={sideBannerBinh}
             />
 
-            {/* ================= BANNER QUẢNG CÁO NGANG ================= */}
-<div className="max-w-[700px] mx-auto px-4 my-6">
-  <div className="w-full py-2 rounded-lg flex items-center justify-center shadow-sm overflow-hidden bg-[#F05123]">
-    <img 
-      src={sideBannerBinh} 
-      alt="Quảng cáo ngang" 
-      className="w-full h-16 md:h-20 object-contain"
-    />
-  </div>
-</div>
-            {/* ========================================================== */}
+            {/* ================= BANNER QUẢNG CÁO NGANG (FIXED SYNTAX) ================= */}
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+              className="max-w-[1200px] mx-auto px-4 my-8"
+            >
+              <div className="w-full rounded-xl shadow-md overflow-hidden cursor-pointer hover:shadow-xl transition-shadow border-2 border-white bg-white">
+                <img 
+                  src={sideBannerBinh} 
+                  alt="Quảng cáo ngang" 
+                  className="w-full h-auto block opacity-95 hover:opacity-100 transition-opacity"
+                />
+              </div>
+            </motion.div>
+            {/* ============================================================================ */}
 
-            {/* Khối Sản phẩm mới */}
             <ProductGrid title="Sản phẩm mới" products={sampleProducts} bannerImg={null} />
-        </div>
+          </div>
 
-        <BlogSection />
-      </main>
-      <Footer />
-    </div>
+          <BlogSection />
+        </main>
+
+        <Footer />
+      </div>
+    </PageWrapper>
   );
 };
 

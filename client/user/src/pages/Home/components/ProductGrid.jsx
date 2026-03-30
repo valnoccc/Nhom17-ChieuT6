@@ -30,7 +30,6 @@ const ProductGrid = ({ title = "Danh sách", products = productsData }) => {
         </div>
         
         {/* ================= ĐIỀU CHỈNH BỐ CỤC ================= */}
-        {/* Dùng xl:grid-cols-4 để ép 4 thẻ đầu (1 Banner + 3 Sản phẩm) vừa khít màn hình */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6 xl:gap-8">
           
           {/* LẶP QUA MẢNG VÀ CHÈN BANNER VÀO VỊ TRÍ ĐẦU TIÊN (MÁY XAY MINI) */}

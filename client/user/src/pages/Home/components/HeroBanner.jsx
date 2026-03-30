@@ -4,10 +4,6 @@ import 'swiper/css';
 
 // 1. IMPORT ẢNH VÀO ĐÂY
 import bannerImg1 from '../../../images/banner1.jpg';
-
-// ========================================================
-// ĐÃ CHỈNH SỬA: Nhập ảnh mới bạn vừa đổi tên.
-// ĐẢM BẢO: Bạn đã lưu ảnh flash sale mới vào src/images với tên 'banner 2.jpg'
 import bannerImg2 from "../../../images/banner2.jpg"; 
 // ========================================================
 

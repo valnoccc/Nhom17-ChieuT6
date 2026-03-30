@@ -1,7 +1,11 @@
 import React from 'react';
 import { FaStar, FaShoppingCart } from 'react-icons/fa';
+import { useCart } from '../../../context/CartContext';
+// =================================================
 
 const ProductCard = ({ product }) => {
+  // 2. Gọi hàm addToCart (thêm vào giỏ) từ kho ra để sử dụng
+  const { addToCart } = useCart();
   return (
     <div className="bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 overflow-hidden flex flex-col h-full cursor-pointer relative group">
       
@@ -42,9 +46,18 @@ const ProductCard = ({ product }) => {
             </span>
           </div>
           
-          <button className="bg-[#e30019] text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-red-800 transition-colors shadow-md transform hover:scale-110 mb-1 flex-shrink-0">
+          {/* 3. Gắn sự kiện onClick gọi hàm addToCart */}
+          <button 
+            onClick={(e) => {
+              e.preventDefault(); 
+              addToCart(product); 
+            }}
+            className="bg-[#e30019] text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-red-800 transition-colors shadow-md transform hover:scale-110 mb-1 flex-shrink-0"
+          >
             <FaShoppingCart size={16} />
           </button>
+          {/* ========================================================== */}
+          
         </div>
       </div>
     </div>
