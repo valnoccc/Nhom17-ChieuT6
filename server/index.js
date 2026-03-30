@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
-const mysql = require('mysql2/promise'); // SỬA: Dùng trực tiếp bản promise
+// SỬA: Dùng mysql2 bản thường (hỗ trợ Callback) thay vì /promise
+const mysql = require('mysql2');
 const cors = require('cors');
 const app = express();
 
@@ -11,18 +12,18 @@ const productRoute = require('./routes/product/product.router');
 const cartRoute = require('./routes/cart/cart.route');
 const orderRoute = require('./routes/order/order.route');
 
-// 2. MIDDLEWARES (Phải đặt trước Routes)
+// 2. MIDDLEWARES
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Middleware Debug: Giúp cậu xem request nào đang bay vào server
+// Middleware Debug
 app.use((req, res, next) => {
     console.log(`>>> [${req.method}] ${req.url}`);
     next();
 });
 
-// 3. CẤU HÌNH KẾT NỐI TIDB CLOUD (Dùng Pool chuyên cho Promise)
+// 3. CẤU HÌNH KẾT NỐI TIDB CLOUD (Bản Callback)
 const db = mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
@@ -32,25 +33,34 @@ const db = mysql.createPool({
     ssl: { minVersion: 'TLSv1.2', rejectUnauthorized: true }
 });
 
-app.set('db', db); // Chia sẻ kết nối db cho các controller
+// Quan trọng: Gán db vào app để các controller gọi req.app.get('db') chạy được callback
+app.set('db', db);
 
+// Trang chủ kiểm tra trạng thái server
 app.get('/', (req, res) => {
     res.json({
-        message: 'Backend Nhóm 17 đang hoạt động ổn định!',
+        message: 'Backend Nhóm 17 đang hoạt động ổn định! (Hỗ trợ Callback Mode)',
         version: '1.0.0',
         endpoints: {
             admin: '/admin/*',
-            users: '/api/users/*'
+            users: '/api/users/*',
+            products: '/api/products/*',
+            cart: '/api/cart/*',
+            orders: '/api/orders/*'
         }
     });
 });
 
-// Sử dụng Routes đã tách
+// 4. SỬ DỤNG ROUTES
 app.use('/api/users', userRoute);
+app.use('/api/products', productRoute);
+app.use('/api/cart', cartRoute);
+app.use('/api/orders', orderRoute);
 app.use('/', adminRoute);
 
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
     console.log(`\n🚀 Server Nhóm 17 chạy tại: http://localhost:${PORT}`);
-    console.log(`   Admin API: http://localhost:${PORT}/admin/*`);
+    console.log(`📌 Test API Sản phẩm: http://localhost:${PORT}/api/products`);
+    console.log(`📌 Test API Admin: http://localhost:${PORT}/admin/*`);
 });
