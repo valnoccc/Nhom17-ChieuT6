@@ -17,3 +17,8 @@ yarn-error.log*
 .vscode/
 .idea/
 *.swp
+# Các file test và documentation
+server/create-demo-users.js
+server/create-test-token.js
+server/test-admin.js
+server/.md/
