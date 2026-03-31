@@ -57,7 +57,8 @@ app.use('/api/products', productRoute);
 app.use('/api/cart', cartRoute);
 app.use('/api/orders', orderRoute);
 app.use('/', adminRoute);
-
+// Cho phép truy cập thư mục public
+app.use('/public', express.static('public'));
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
     console.log(`\n🚀 Server Nhóm 17 chạy tại: http://localhost:${PORT}`);

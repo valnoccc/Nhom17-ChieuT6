@@ -1,26 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FaUserCircle, FaClipboardList, FaMapMarkerAlt, FaSignOutAlt, FaBox, FaTruck, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
+import { FaUserCircle, FaClipboardList, FaMapMarkerAlt, FaSignOutAlt, FaBox, FaTruck, FaCheckCircle, FaTimesCircle, FaSpinner } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
+import axios from 'axios';
 import PageWrapper from '../../components/layout/PageWrapper';
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
 
-// IMPORT HÌNH ẢNH MẪU TỪ DỰ ÁN
-import imgTop1 from "../../images/coc_giu_nhiet_inox_304_elmich_el8385_dung_tich_500ml.png";
-import imgTop3 from "../../images/noi_chong_dinh_ceramic_elmich.png";
-import imgTop5 from "../../images/noi_chao_lau_da_nang_inox_lien_khoi_elmich.png";
+// ẢNH DỰ PHÒNG KHI LỖI HOẶC CHƯA CÓ ẢNH
+import imgDefault from "../../images/may_xay_sinh_to_mini_elmich_ble9244.png";
+const PLACEHOLDER_IMG = imgDefault;
 
-// ================= DỮ LIỆU ĐƠN HÀNG MẪU =================
+// ================= DỮ LIỆU ĐƠN HÀNG MẪU (DỰ PHÒNG KHI API LỖI) =================
 const MOCK_ORDERS = [
   {
     id: "ELM-2508-9823",
     date: "25/08/2025 14:30",
     status: "ĐÃ GIAO",
     items: [
-      { name: "Cốc giữ nhiệt inox 304 Elmich EL1049 dung tích 550ml", price: 369000, quantity: 2, image: imgTop1 },
-      { name: "Nồi chống dính ceramic Elmich Harmony EL5540PT", price: 675000, quantity: 1, image: imgTop3 }
+      { name: "Cốc giữ nhiệt inox 304 Elmich EL1049 dung tích 550ml", price: 369000, quantity: 2, image: PLACEHOLDER_IMG },
+      { name: "Nồi chống dính ceramic Elmich Harmony EL5540PT", price: 675000, quantity: 1, image: PLACEHOLDER_IMG }
     ],
     shippingFee: 0,
     discount: 120000,
@@ -31,7 +31,7 @@ const MOCK_ORDERS = [
     date: "28/08/2025 09:15",
     status: "CHỜ XÁC NHẬN",
     items: [
-      { name: "Nồi chảo lẩu đa năng Inox liền khối Elmich Trimax XS", price: 925000, quantity: 1, image: imgTop5 }
+      { name: "Nồi chảo lẩu đa năng Inox liền khối Elmich Trimax XS", price: 925000, quantity: 1, image: PLACEHOLDER_IMG }
     ],
     shippingFee: 35000,
     discount: 0,
@@ -42,7 +42,7 @@ const MOCK_ORDERS = [
     date: "10/07/2025 19:45",
     status: "ĐÃ HỦY",
     items: [
-      { name: "Cốc giữ nhiệt inox 304 Elmich EL1049 dung tích 550ml", price: 369000, quantity: 1, image: imgTop1 }
+      { name: "Cốc giữ nhiệt inox 304 Elmich EL1049 dung tích 550ml", price: 369000, quantity: 1, image: PLACEHOLDER_IMG }
     ],
     shippingFee: 35000,
     discount: 0,
@@ -54,11 +54,57 @@ const TABS = ['TẤT CẢ', 'CHỜ XÁC NHẬN', 'ĐANG GIAO', 'ĐÃ GIAO', 'Đ�
 
 const OrderHistoryPage = () => {
   const [activeTab, setActiveTab] = useState('TẤT CẢ');
+  
+  // ================= STATE DỮ LIỆU TỪ API =================
+  const [orders, setOrders] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // HÀM XỬ LÝ LINK ẢNH CHUẨN MỰC TỪ SERVER
+  const getImageUrl = (url) => {
+    if (!url) return PLACEHOLDER_IMG;
+    if (url.startsWith('http')) return url;
+    return `http://localhost:10000/public/images/${url}`; 
+  };
+
+  // ================= GỌI API LẤY LỊCH SỬ ĐƠN HÀNG =================
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        setIsLoading(true);
+        // Lưu ý: Thay đổi endpoint này cho đúng với API backend của bạn
+        const response = await axios.get("http://localhost:10000/api/orders");
+        
+        if (response.data && response.data.success && response.data.data.length > 0) {
+          // Format lại dữ liệu từ DB (nếu cần)
+          const formattedOrders = response.data.data.map(order => ({
+            ...order,
+            // Đảm bảo items có format đúng chuẩn để render
+            items: order.items?.map(item => ({
+              ...item,
+              image: getImageUrl(item.image || item.thumbnail_url)
+            })) || []
+          }));
+          setOrders(formattedOrders);
+        } else {
+          // Nếu API gọi thành công nhưng mảng rỗng
+          setOrders([]);
+        }
+      } catch (error) {
+        console.error("Lỗi khi lấy API Đơn hàng, đang dùng dữ liệu dự phòng:", error);
+        // NẾU CHƯA CÓ API THÌ DÙNG MOCK DATA ĐỂ KHÔNG BỊ TRẮNG TRANG
+        setOrders(MOCK_ORDERS);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, []);
 
   // Lọc đơn hàng theo Tab
-  const filteredOrders = MOCK_ORDERS.filter(order => {
+  const filteredOrders = orders.filter(order => {
     if (activeTab === 'TẤT CẢ') return true;
-    return order.status === activeTab;
+    return order.status?.toUpperCase() === activeTab;
   });
 
   const handleReorder = () => {
@@ -71,12 +117,13 @@ const OrderHistoryPage = () => {
 
   // Hàm render màu sắc và icon theo trạng thái
   const getStatusDisplay = (status) => {
-    switch (status) {
+    const safeStatus = status?.toUpperCase();
+    switch (safeStatus) {
       case 'CHỜ XÁC NHẬN': return <span className="text-orange-500 flex items-center gap-1 font-bold"><FaBox /> CHỜ XÁC NHẬN</span>;
       case 'ĐANG GIAO': return <span className="text-blue-500 flex items-center gap-1 font-bold"><FaTruck /> ĐANG GIAO</span>;
       case 'ĐÃ GIAO': return <span className="text-green-600 flex items-center gap-1 font-bold"><FaCheckCircle /> ĐÃ GIAO THÀNH CÔNG</span>;
       case 'ĐÃ HỦY': return <span className="text-red-500 flex items-center gap-1 font-bold"><FaTimesCircle /> ĐÃ HỦY</span>;
-      default: return status;
+      default: return <span className="font-bold text-gray-600">{status}</span>;
     }
   };
 
@@ -98,12 +145,12 @@ const OrderHistoryPage = () => {
           
           {/* ================= SIDEBAR TÀI KHOẢN (25%) ================= */}
           <div className="w-full lg:w-[280px] flex-shrink-0">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden sticky top-24">
               <div className="p-5 flex items-center gap-4 border-b border-gray-100 bg-gray-50/50">
                 <FaUserCircle size={45} className="text-gray-300" />
                 <div>
                   <p className="text-[13px] text-gray-500">Tài khoản của</p>
-                  <p className="text-[16px] font-bold text-gray-800">Khach</p>
+                  <p className="text-[16px] font-bold text-gray-800">Khách hàng</p>
                 </div>
               </div>
               <div className="p-2">
@@ -145,7 +192,12 @@ const OrderHistoryPage = () => {
             </div>
 
             {/* DANH SÁCH ĐƠN HÀNG */}
-            {filteredOrders.length === 0 ? (
+            {isLoading ? (
+               <div className="bg-white rounded-xl shadow-sm border border-gray-100 py-20 flex flex-col items-center justify-center">
+                 <FaSpinner className="animate-spin text-[#ed1c24] text-4xl mb-4" />
+                 <p className="text-gray-500 font-medium">Đang tải dữ liệu đơn hàng...</p>
+               </div>
+            ) : filteredOrders.length === 0 ? (
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 py-20 flex flex-col items-center justify-center">
                 <img src="https://cdn-icons-png.flaticon.com/512/743/743131.png" alt="Empty" className="w-24 h-24 mb-4 opacity-30 grayscale" />
                 <p className="text-gray-500 font-medium">Chưa có đơn hàng nào</p>
@@ -167,10 +219,10 @@ const OrderHistoryPage = () => {
 
                     {/* Danh sách Sản phẩm */}
                     <div className="space-y-4">
-                      {order.items.map((item, index) => (
+                      {order.items && order.items.map((item, index) => (
                         <div key={index} className="flex items-start gap-4">
                           <div className="w-20 h-20 border border-gray-200 rounded-lg p-1 bg-gray-50 flex-shrink-0">
-                            <img src={item.image} alt={item.name} className="w-full h-full object-contain" />
+                            <img src={item.image} alt={item.name} onError={(e) => { e.target.onerror = null; e.target.src = PLACEHOLDER_IMG; }} className="w-full h-full object-contain" />
                           </div>
                           <div className="flex-1 flex flex-col md:flex-row md:justify-between gap-2">
                             <div>
@@ -178,7 +230,7 @@ const OrderHistoryPage = () => {
                               <p className="text-[13px] text-gray-500 mt-1">x{item.quantity}</p>
                             </div>
                             <div className="text-right">
-                              <span className="text-[14px] font-bold text-[#ed1c24]">{item.price.toLocaleString()}đ</span>
+                              <span className="text-[14px] font-bold text-[#ed1c24]">{Number(item.price).toLocaleString('vi-VN')}đ</span>
                             </div>
                           </div>
                         </div>
@@ -188,8 +240,8 @@ const OrderHistoryPage = () => {
                     {/* Footer Đơn hàng: Tính tiền & Nút bấm */}
                     <div className="mt-6 pt-5 border-t border-gray-100 flex flex-col md:flex-row items-end justify-between gap-4 bg-[#fafafa] -mx-5 -mb-5 px-5 py-4 rounded-b-xl">
                       <div className="w-full md:w-auto text-[14px] text-gray-600 space-y-1">
-                        {order.discount > 0 && <p className="flex justify-between md:justify-start md:gap-4">Giảm giá: <span className="font-medium">- {order.discount.toLocaleString()}đ</span></p>}
-                        <p className="flex justify-between md:justify-start md:gap-4">Thành tiền: <span className="text-[20px] font-black text-[#ed1c24]">{order.total.toLocaleString()}đ</span></p>
+                        {order.discount > 0 && <p className="flex justify-between md:justify-start md:gap-4">Giảm giá: <span className="font-medium">- {Number(order.discount).toLocaleString('vi-VN')}đ</span></p>}
+                        <p className="flex justify-between md:justify-start md:gap-4">Thành tiền: <span className="text-[20px] font-black text-[#ed1c24]">{Number(order.total).toLocaleString('vi-VN')}đ</span></p>
                       </div>
 
                       <div className="flex items-center gap-3 w-full md:w-auto">

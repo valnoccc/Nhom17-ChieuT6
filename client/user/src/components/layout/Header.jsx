@@ -26,7 +26,7 @@ const Header = () => {
     if (searchQuery.trim()) {
       // Đẩy người dùng sang trang danh sách sản phẩm kèm từ khóa tìm kiếm trên URL
       navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
-      setIsMobileMenuOpen(false); // Đóng menu mobile nếu đang mở
+      setIsMobileMenuOpen(false); 
     }
   };
 
@@ -79,7 +79,7 @@ const Header = () => {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Nhập tên hoặc mã sản phẩm..."
+                placeholder="Nhập tên sản phẩm (VD: Tủ lạnh, Máy giặt)..."
                 className="flex-1 px-5 text-[14px] outline-none text-gray-700 bg-transparent"
               />
               <button type="submit" className="px-5 text-gray-400 group-hover:text-[#ed1c24] transition-colors hover:bg-gray-50">
@@ -87,10 +87,10 @@ const Header = () => {
               </button>
             </form>
             
-            {/* Top Tìm Kiếm */}
+            {/* Top Tìm Kiếm - Cập nhật cho khớp Điện máy */}
             <div className="flex items-center gap-2 mt-2 text-[12px]">
               <span className="text-gray-500 font-bold">Top Tìm Kiếm:</span>
-              {["Nồi Inox", "Máy hút ẩm", "Thay lõi lọc"].map((item, i) => (
+              {["Tủ lạnh", "Máy giặt", "Máy xay"].map((item, i) => (
                 <span 
                   key={i} 
                   onClick={() => handleQuickSearch(item)}

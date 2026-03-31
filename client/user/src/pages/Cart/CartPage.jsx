@@ -3,14 +3,20 @@ import { Link } from 'react-router-dom';
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
 import { FaShippingFast, FaShieldAlt } from 'react-icons/fa';
-
-// ================= THÊM DÒNG NÀY =================
 import { useCart } from '../../context/CartContext';
-// =================================================
+
+// ẢNH DỰ PHÒNG KHI LỖI
+const PLACEHOLDER_IMG = "https://via.placeholder.com/150?text=Elmich";
 
 const CartPage = () => {
-  // Bỏ useState giả đi, lấy cartItems và hàm setCartItems thật từ "Kho"
   const { cartItems, setCartItems } = useCart();
+
+  // ================= HÀM XỬ LÝ ĐƯỜNG DẪN ẢNH =================
+  const getImageUrl = (url) => {
+    if (!url) return PLACEHOLDER_IMG;
+    if (url.startsWith('http')) return url;
+    return `http://localhost:10000/public/images/${url}`; 
+  };
 
   // Hàm tính tổng tiền
   const calculateTotal = () => {
@@ -75,17 +81,24 @@ const CartPage = () => {
                 {cartItems.map((item) => (
                   <div key={item.id} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center py-6 px-4 border-b border-gray-100 last:border-0">
                     <div className="col-span-1 md:col-span-6 flex items-center gap-4">
-                      <img src={item.image} alt={item.name} className="w-20 h-20 object-contain border border-gray-100 p-1" />
-                      <span className="text-[15px] font-medium text-gray-800 hover:text-[#e30019] cursor-pointer">{item.name}</span>
+                      {/* ĐÃ SỬA: Dùng getImageUrl và check fallback thumbnail_url */}
+                      <img 
+                        src={getImageUrl(item.thumbnail_url || item.image)} 
+                        alt={item.name} 
+                        onError={(e) => { e.target.onerror = null; e.target.src = PLACEHOLDER_IMG; }}
+                        className="w-20 h-20 object-contain border border-gray-100 p-1" 
+                      />
+                      <Link to={`/product/${item.id}`} className="text-[15px] font-medium text-gray-800 hover:text-[#e30019] cursor-pointer">
+                        {item.name}
+                      </Link>
                     </div>
                     
                     <div className="col-span-1 md:col-span-2 text-center text-[#e30019] font-bold text-[15px]">
-                      {item.price.toLocaleString('vi-VN')} đ
+                      {Number(item.price).toLocaleString('vi-VN')} đ
                     </div>
                     
                     <div className="col-span-1 md:col-span-2 flex justify-center">
                       <div className="flex items-center border border-gray-300 rounded-sm">
-                        {/* Nút Trừ */}
                         <button 
                           onClick={() => updateQuantity(item.id, -1)}
                           className="px-3 py-1.5 text-gray-500 hover:bg-gray-100 transition-colors cursor-pointer"
@@ -93,7 +106,6 @@ const CartPage = () => {
                         
                         <input type="text" value={item.quantity} readOnly className="w-10 text-center text-[14px] outline-none border-l border-r border-gray-300 py-1.5 bg-white" />
                         
-                        {/* Nút Cộng */}
                         <button 
                           onClick={() => updateQuantity(item.id, 1)}
                           className="px-3 py-1.5 text-gray-500 hover:bg-gray-100 transition-colors cursor-pointer"
@@ -105,7 +117,6 @@ const CartPage = () => {
                       <span className="text-[#e30019] font-bold text-[15px] w-full text-center">
                         {(item.price * item.quantity).toLocaleString('vi-VN')} đ
                       </span>
-                      {/* Nút Xóa */}
                       <button 
                         onClick={() => removeItem(item.id)}
                         className="border border-[#e30019] text-[#e30019] px-3 py-1 rounded text-[13px] hover:bg-[#e30019] hover:text-white transition-colors"
@@ -140,14 +151,11 @@ const CartPage = () => {
                     <span className="font-bold text-[#e30019] text-[24px]">{calculateTotal().toLocaleString('vi-VN')} đ</span>
                   </div>
                   
-                  {/* ================= ĐÃ SỬA CHỖ NÀY ================= */}
-                  {/* Bọc nút thanh toán bằng Link để nhảy sang trang Checkout */}
                   <Link to="/checkout">
                     <button className="w-full lg:w-auto bg-[#e30019] text-white px-12 py-3 rounded text-[15px] font-medium hover:bg-red-800 transition-colors shadow-sm">
                       TIẾN HÀNH THANH TOÁN
                     </button>
                   </Link>
-                  {/* ================================================== */}
 
                 </div>
               </div>

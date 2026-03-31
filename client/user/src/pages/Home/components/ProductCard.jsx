@@ -1,63 +1,68 @@
 import React from 'react';
-import { FaStar, FaShoppingCart } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
+import { FaShoppingCart, FaStar } from 'react-icons/fa';
 import { useCart } from '../../../context/CartContext';
-// =================================================
+import { toast } from 'react-toastify';
 
 const ProductCard = ({ product }) => {
-  // 2. Gọi hàm addToCart (thêm vào giỏ) từ kho ra để sử dụng
   const { addToCart } = useCart();
+
+  const handleAddToCart = (e) => {
+    e.preventDefault(); // Ngăn việc click giỏ hàng bị nhảy trang
+    addToCart(product);
+    toast.success("Đã thêm vào giỏ hàng!");
+  };
+
+  // ================= XỬ LÝ ĐỊNH DẠNG TIỀN TỆ Ở ĐÂY =================
+  // Dùng Number() để ép kiểu bỏ đuôi .00, sau đó dùng toLocaleString để thêm dấu chấm
+  const formattedPrice = Number(product.price).toLocaleString('vi-VN');
+  const formattedOldPrice = product.oldPrice ? Number(product.oldPrice).toLocaleString('vi-VN') : null;
+
   return (
-    <div className="bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 overflow-hidden flex flex-col h-full cursor-pointer relative group">
+    <div className="bg-white rounded-xl shadow-sm hover:shadow-md border border-[#ebebeb] transition-all duration-300 group flex flex-col h-full overflow-hidden relative p-4">
       
-      {/* NHÃN GIẢM GIÁ */}
-      {product.discount && (
-        <div className="absolute top-0 left-0 z-10 bg-[#e30019] text-white text-[12px] font-bold px-3 py-1 rounded-br-xl shadow-md">
-          Giảm {product.discount}%
-        </div>
-      )}
-
-      {/* KHỐI ẢNH CỐ ĐỊNH CHIỀU CAO */}
-      <div className="relative w-full h-[220px] md:h-[240px] bg-white flex items-center justify-center p-4 border-b border-gray-50">
+      {/* Ảnh sản phẩm */}
+      <Link to={`/product/${product.id}`} className="w-full h-[180px] mb-4 flex items-center justify-center bg-gray-50 rounded-lg overflow-hidden">
         <img 
-          src={product.image || "https://via.placeholder.com/300"} 
+          src={product.image} 
           alt={product.name} 
-          className="object-contain w-full h-full group-hover:scale-105 transition-transform duration-500"
+          className="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500 p-2" 
         />
-      </div>
+      </Link>
 
-      {/* THÔNG TIN SẢN PHẨM */}
-      <div className="p-4 lg:p-5 flex flex-col flex-1">
-        <h3 className="text-[15px] lg:text-[16px] text-[#333] font-medium mb-2 line-clamp-2 leading-snug group-hover:text-[#e30019] transition-colors h-[44px]">
-          {product.name}
-        </h3>
+      <div className="flex flex-col flex-1">
+        {/* Tên sản phẩm */}
+        <Link to={`/product/${product.id}`}>
+          <h3 className="text-[14px] lg:text-[15px] text-[#333] font-medium mb-2 line-clamp-2 leading-snug min-h-[44px] hover:text-[#e30019] transition-colors">
+            {product.name}
+          </h3>
+        </Link>
 
-        <div className="flex items-center text-yellow-400 text-[14px] mb-4 gap-0.5">
-          {[...Array(5)].map((_, i) => (<FaStar key={i} />))}
-          <span className="text-gray-400 ml-2 text-[12px] font-normal">(Đánh giá)</span>
+        {/* Đánh giá sao */}
+        <div className="flex items-center gap-1 text-yellow-400 text-[12px] mb-3">
+          {[...Array(product.rating || 5)].map((_, i) => <FaStar key={i} />)}
+          <span className="text-gray-400 ml-1 text-[11px]">(Đánh giá)</span>
         </div>
 
-        <div className="mt-auto flex justify-between items-end gap-2 pt-2">
-          <div className="flex flex-col gap-1">
-            <span className="text-[#e30019] font-black text-[20px] lg:text-[22px] leading-none">
-              {product.price?.toLocaleString('vi-VN')}đ
+        {/* Khung Giá & Nút Thêm Giỏ Hàng */}
+        <div className="mt-auto flex justify-between items-end">
+          <div className="flex flex-col">
+            <span className="text-[#e30019] text-[18px] lg:text-[20px] font-bold">
+              {formattedPrice}đ
             </span>
-            <span className="text-gray-400 line-through text-[14px] leading-none">
-              {product.oldPrice?.toLocaleString('vi-VN')}đ
-            </span>
+            {formattedOldPrice && (
+              <span className="text-[#999] text-[13px] line-through mt-0.5">
+                {formattedOldPrice}đ
+              </span>
+            )}
           </div>
           
-          {/* 3. Gắn sự kiện onClick gọi hàm addToCart */}
           <button 
-            onClick={(e) => {
-              e.preventDefault(); 
-              addToCart(product); 
-            }}
-            className="bg-[#e30019] text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-red-800 transition-colors shadow-md transform hover:scale-110 mb-1 flex-shrink-0"
+            onClick={handleAddToCart}
+            className="bg-[#e30019] text-white w-9 h-9 rounded-full flex items-center justify-center hover:bg-red-800 transform hover:scale-110 active:scale-95 transition-all flex-shrink-0"
           >
-            <FaShoppingCart size={16} />
+            <FaShoppingCart size={15} />
           </button>
-          {/* ========================================================== */}
-          
         </div>
       </div>
     </div>

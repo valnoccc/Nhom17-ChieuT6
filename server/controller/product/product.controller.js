@@ -2,43 +2,43 @@
 const getAllProducts = (req, res) => {
     const db = req.app.get('db');
 
-    // 1. Lấy tham số từ Query String (ví dụ: ?page=1&limit=5)
-    // Nếu không truyền thì mặc định page 1, mỗi trang 10 sản phẩm
-    let page = parseInt(req.query.page) || 1;
-    let limit = parseInt(req.query.limit) || 10;
-    let offset = (page - 1) * limit;
+    // TEST THỬ KẾT NỐI TRƯỚC
+    db.query("SELECT 1", (testErr) => {
+        if (testErr) {
+            console.error("❌ LỖI KẾT NỐI DATABASE:", testErr.code, testErr.message);
+            return res.status(500).json({ success: false, error: "Không thể kết nối Database" });
+        }
 
-    // 2. Câu lệnh lấy dữ liệu có LIMIT và OFFSET
-    const sqlData = `
-        SELECT id, category_id, name, price, stock_quantity, thumbnail_url 
-        FROM products 
-        ORDER BY id DESC 
-        LIMIT ? OFFSET ?
-    `;
+        let page = parseInt(req.query.page) || 1;
+        let limit = parseInt(req.query.limit) || 10;
+        let offset = (page - 1) * limit;
 
-    // 3. Câu lệnh đếm tổng số sản phẩm (để Frontend biết có tổng bao nhiêu trang)
-    const sqlCount = "SELECT COUNT(*) as total FROM products";
+        // Câu lệnh đếm đơn giản nhất - Kiểm tra kỹ tên bảng 'products'
+        const sqlCount = "SELECT COUNT(*) as total FROM products";
 
-    // Thực hiện đếm tổng trước
-    db.query(sqlCount, (err, countResult) => {
-        if (err) return res.status(500).json({ error: err.message });
+        db.query(sqlCount, (err, countResult) => {
+            if (err) {
+                // IN CHI TIẾT LỖI RA TERMINAL
+                console.error("❌ LỖI SQL COUNT:", err); 
+                return res.status(500).json({ success: false, error: err.message });
+            }
 
-        const totalItems = countResult[0].total;
-        const totalPages = Math.ceil(totalItems / limit);
+            const totalItems = countResult[0].total;
+            const totalPages = Math.ceil(totalItems / limit);
 
-        // Sau đó mới lấy dữ liệu trang hiện tại
-        db.query(sqlData, [limit, offset], (err, results) => {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({
-                success: true,
-                message: "Lấy danh sách sản phẩm thành công",
-                pagination: {
-                    totalItems: totalItems,
-                    totalPages: totalPages,
-                    currentPage: page,
-                    limit: limit
-                },
-                data: results
+            const sqlData = "SELECT * FROM products ORDER BY id DESC LIMIT ? OFFSET ?";
+            
+            db.query(sqlData, [Number(limit), Number(offset)], (err, results) => {
+                if (err) {
+                    console.error("❌ LỖI SQL DATA:", err.message);
+                    return res.status(500).json({ success: false, error: err.message });
+                }
+                
+                res.json({
+                    success: true,
+                    pagination: { totalItems, totalPages, currentPage: page, limit },
+                    data: results
+                });
             });
         });
     });
@@ -46,61 +46,58 @@ const getAllProducts = (req, res) => {
 
 // Lấy chi tiết sản phẩm theo ID
 const getProductById = (req, res) => {
-    
     const db = req.app.get('db');
     const id = req.params.id;
     const sql = "SELECT * FROM products WHERE id = ?";
 
     db.query(sql, [id], (err, results) => {
         if (err) {
-            return res.status(500).json({ error: err.message });
+            console.error("❌ LỖI LẤY CHI TIẾT SẢN PHẨM:", err.message);
+            return res.status(500).json({ success: false, error: err.message });
         }
 
         if (results.length === 0) {
-            return res.status(404).json({
-                message: "Không tìm thấy sản phẩm"
-            });
+            return res.status(404).json({ success: false, message: "Không tìm thấy sản phẩm" });
         }
 
         res.json({
+            success: true,
             message: "Lấy chi tiết sản phẩm thành công",
             data: results[0]
         });
     });
 };
 
-//tìm kiếm sản phẩm 
+// Tìm kiếm sản phẩm 
 const searchProducts = (req, res) => {
     const db = req.app.get('db');
-
-    // Lấy các tham số từ Query String (?name=...&minPrice=...&maxPrice=...)
     const { name, minPrice, maxPrice } = req.query;
 
     let sql = "SELECT * FROM products WHERE 1=1";
     const params = [];
 
-    // Nếu có truyền tên sản phẩm
     if (name) {
         sql += " AND name LIKE ?";
-        params.push(`%${name}%`); // Tìm kiếm tương đối (chứa từ khóa)
+        params.push(`%${name}%`);
     }
 
-    // Nếu có truyền giá thấp nhất
     if (minPrice) {
         sql += " AND price >= ?";
-        params.push(parseFloat(minPrice));
+        params.push(Number(minPrice));
     }
 
-    // Nếu có truyền giá cao nhất
     if (maxPrice) {
         sql += " AND price <= ?";
-        params.push(parseFloat(maxPrice));
+        params.push(Number(maxPrice));
     }
 
     sql += " ORDER BY id DESC";
 
     db.query(sql, params, (err, results) => {
-        if (err) return res.status(500).json({ error: err.message });
+        if (err) {
+            console.error("❌ LỖI TÌM KIẾM SẢN PHẨM:", err.message);
+            return res.status(500).json({ success: false, error: err.message });
+        }
 
         res.json({
             success: true,

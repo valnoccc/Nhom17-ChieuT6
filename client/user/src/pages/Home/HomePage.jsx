@@ -9,21 +9,9 @@ import FlashSale from './components/FlashSale';
 import ProductGrid from './components/ProductGrid';
 import PageWrapper from '../../components/layout/PageWrapper'; 
 
-// IMPORT ẢNH BANNER VÀ ẢNH SẢN PHẨM
 import sideBannerBinh from '../../images/banner2.jpg'; 
-import imgCocInox304 from "../../images/coc_giu_nhiet_inox_304_elmich_el8385_dung_tich_500ml.png";
-import imgBinhInox316 from "../../images/binh_giu_nhiet_inox_316_elmich_el8306_dung_tich_500ml.png";
-import imgBinhInoxGiaDinh from "../../images/binh_giu_nhiet_gia_dinh_inox_304_elmich_dung_tich_1.2l.png";
-import imgBinhInox8376 from "../../images/binh_giu_nhiet_inox_304_elmich_el8376_dung_tich_720ml.png";
 
 const HomePage = () => {
-  const sampleProducts = [
-    { id: 1, name: "Cốc giữ nhiệt inox 304 Elmich EL1049 dung tích 550ml", price: 369000, oldPrice: 619000, discount: 40, image: imgCocInox304 },
-    { id: 2, name: "Bình giữ nhiệt inox 316 Elmich EL8306 dung tích...", price: 359000, oldPrice: 729000, discount: 51, image: imgBinhInox316 },
-    { id: 3, name: "Bình giữ nhiệt gia đình inox 304 Elmich dung tích 1.2L", price: 715000, oldPrice: 1100000, discount: 35, image: imgBinhInoxGiaDinh },
-    { id: 4, name: "Bình giữ nhiệt inox 304 Elmich EL8376 dung tích...", price: 289000, oldPrice: 509000, discount: 43, image: imgBinhInox8376 },
-  ];
-
   return (
     <PageWrapper>
       <div className="min-h-screen bg-[#f5f5f5] font-sans">
@@ -31,19 +19,18 @@ const HomePage = () => {
         
         <main>
           <HeroBanner />
+          
           <section className="py-4">
              <FeaturedCategories />
           </section>
+          
           <FlashSale />
           
           <div className="w-full">
-            <ProductGrid 
-                title="Bình giữ nhiệt" 
-                products={sampleProducts} 
-                bannerImg={sideBannerBinh}
-            />
+            {/* Component tự gọi API nên chỉ cần truyền mỗi Title */}
+            <ProductGrid title="Sản phẩm bán chạy" />
 
-            {/* ================= BANNER QUẢNG CÁO NGANG (FIXED SYNTAX) ================= */}
+            {/* ================= BANNER QUẢNG CÁO NGANG ================= */}
             <motion.div 
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -59,9 +46,9 @@ const HomePage = () => {
                 />
               </div>
             </motion.div>
-            {/* ============================================================================ */}
+            {/* ========================================================== */}
 
-            <ProductGrid title="Sản phẩm mới" products={sampleProducts} bannerImg={null} />
+            <ProductGrid title="Sản phẩm mới ra mắt" />
           </div>
 
           <BlogSection />
