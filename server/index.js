@@ -62,6 +62,4 @@ app.use('/public', express.static('public'));
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
     console.log(`\n🚀 Server Nhóm 17 chạy tại: http://localhost:${PORT}`);
-    console.log(`📌 Test API Sản phẩm: http://localhost:${PORT}/api/products`);
-    console.log(`📌 Test API Admin: http://localhost:${PORT}/admin/*`);
 });

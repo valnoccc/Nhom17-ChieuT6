@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FaSpinner } from 'react-icons/fa';
 // ================= THÊM DÒNG NÀY ĐỂ HẾT LỖI =================
-import { Link } from 'react-router-dom'; 
+import { Link } from 'react-router-dom';
 // ==========================================================
 import ProductCard from './ProductCard';
 
@@ -23,22 +23,22 @@ const ProductGrid = ({ title = "Danh sách" }) => {
         setLoading(true);
         // Lấy 7 sản phẩm để cộng với 1 Banner = 8 ô (Vừa đẹp 2 hàng lưới)
         const response = await axios.get("http://localhost:10000/api/products?limit=7");
-        
+
         if (response.data && response.data.success) {
           // XỬ LÝ DỮ LIỆU: Đổi tên cột từ API cho khớp với ProductCard
           const formattedProducts = response.data.data.map(item => {
             // Xử lý link ảnh
             let imgUrl = PLACEHOLDER_IMG;
             if (item.thumbnail_url) {
-              imgUrl = item.thumbnail_url.startsWith('http') 
-                ? item.thumbnail_url 
+              imgUrl = item.thumbnail_url.startsWith('http')
+                ? item.thumbnail_url
                 : `http://localhost:10000/public/images/${item.thumbnail_url}`;
             }
 
             return {
               ...item,
-              image: imgUrl, 
-      
+              image: imgUrl,
+
               oldPrice: item.old_price || item.oldPrice || null,
             };
           });
@@ -62,32 +62,32 @@ const ProductGrid = ({ title = "Danh sách" }) => {
           <h2 className="text-[26px] font-bold text-gray-800 uppercase tracking-tight">{title}</h2>
           <Link to="/products" className="text-[#e30019] hover:underline text-sm font-medium">Xem thêm</Link>
         </div>
-        
+
         {/* ================= ĐIỀU CHỈNH BỐ CỤC ================= */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6 xl:gap-8">
-          
+
           {/* Ô SỐ 1: LUÔN HIỂN THỊ BANNER */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden relative group h-full flex flex-col">
-            <img 
-              src={bannerBinhGiuNhiet} 
-              alt="Banner Khuyến Mãi" 
+            <img
+              src={bannerBinhGiuNhiet}
+              alt="Banner Khuyến Mãi"
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 cursor-pointer"
             />
           </div>
 
           {/* CÁC Ô CÒN LẠI: LẶP DỮ LIỆU TỪ API */}
           {loading ? (
-             <div className="col-span-full flex justify-center py-20">
-               <FaSpinner className="animate-spin text-[#e30019] text-3xl"/>
-             </div>
+            <div className="col-span-full flex justify-center py-20">
+              <FaSpinner className="animate-spin text-[#e30019] text-3xl" />
+            </div>
           ) : (
             products.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))
           )}
-          
+
         </div>
-        
+
         <div className="mt-14 text-center">
           <Link to="/products" className="border-2 border-[#e30019] text-[#e30019] px-8 py-2.5 rounded font-bold hover:bg-[#e30019] hover:text-white transition duration-300 transform hover:scale-105 active:scale-95 shadow-sm inline-block">
             Xem tất cả {title.toLowerCase()}
