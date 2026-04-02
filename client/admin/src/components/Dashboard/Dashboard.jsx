@@ -5,8 +5,8 @@ import {
 } from 'recharts';
 import PageWrapper from '../Layout/PageWrapper';
 
-//const BASE_URL = "http://localhost:10000";
 const BASE_URL = 'https://nhom17-chieut6.onrender.com';
+//const BASE_URL = 'http://localhost:10000';
 
 function Dashboard() {
   const [stats, setStats] = useState({
@@ -23,6 +23,15 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  // Helper function to get auth headers
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem('adminToken');
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    };
+  };
+
   useEffect(() => {
     fetchAllData();
   }, []);
@@ -31,35 +40,45 @@ function Dashboard() {
     setLoading(true);
     try {
       // Fetch dashboard stats
-      const statsRes = await fetch(`${BASE_URL}/admin/dashboard/stats`);
+      const statsRes = await fetch(`${BASE_URL}/admin/dashboard/stats`, {
+        headers: getAuthHeaders()
+      });
       const statsData = await statsRes.json();
       if (statsData.success) {
         setStats(statsData.data);
       }
 
       // Fetch revenue stats (by month)
-      const revenueRes = await fetch(`${BASE_URL}/admin/dashboard/revenue?period=month`);
+      const revenueRes = await fetch(`${BASE_URL}/admin/dashboard/revenue?period=month`, {
+        headers: getAuthHeaders()
+      });
       const revenueData = await revenueRes.json();
       if (revenueData.success) {
         setRevenueData(revenueData.data);
       }
 
       // Fetch order status stats
-      const orderRes = await fetch(`${BASE_URL}/admin/dashboard/orders-status`);
+      const orderRes = await fetch(`${BASE_URL}/admin/dashboard/orders-status`, {
+        headers: getAuthHeaders()
+      });
       const orderData = await orderRes.json();
       if (orderData.success) {
         setOrderStatusStats(orderData.data);
       }
 
       // Fetch all products for category distribution
-      const productsRes = await fetch(`${BASE_URL}/admin/products?page=1&limit=9999`);
+      const productsRes = await fetch(`${BASE_URL}/admin/products?page=1&limit=9999`, {
+        headers: getAuthHeaders()
+      });
       const productsData = await productsRes.json();
       if (productsData.success) {
         setAllProducts(productsData.data.products);
       }
 
       // Fetch all users for user stats
-      const usersRes = await fetch(`${BASE_URL}/admin/users?page=1&limit=9999`);
+      const usersRes = await fetch(`${BASE_URL}/admin/users?page=1&limit=9999`, {
+        headers: getAuthHeaders()
+      });
       const usersData = await usersRes.json();
       if (usersData.success) {
         setAllUsers(usersData.data.users);

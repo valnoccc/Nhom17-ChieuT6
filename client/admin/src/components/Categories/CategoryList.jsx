@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import PageWrapper from '../Layout/PageWrapper';
 
-//const BASE_URL = "http://localhost:10000";
+//const BASE_URL = 'http://localhost:10000';
 const BASE_URL = 'https://nhom17-chieut6.onrender.com';
 
 function CategoryList() {
@@ -23,6 +23,15 @@ function CategoryList() {
     description: ''
   });
 
+  // Helper function to get auth headers
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem('adminToken');
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    };
+  };
+
   // Fetch categories and products for stats
   useEffect(() => {
     fetchCategories();
@@ -37,7 +46,9 @@ function CategoryList() {
   const fetchCategories = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${BASE_URL}/admin/categories`);
+      const res = await fetch(`${BASE_URL}/admin/categories`, {
+        headers: getAuthHeaders()
+      });
       const data = await res.json();
       if (data.success) {
         setCategories(data.data);
@@ -53,7 +64,9 @@ function CategoryList() {
 
   const fetchAllProducts = async () => {
     try {
-      const res = await fetch(`${BASE_URL}/admin/products?page=1&limit=9999`);
+      const res = await fetch(`${BASE_URL}/admin/products?page=1&limit=9999`, {
+        headers: getAuthHeaders()
+      });
       const data = await res.json();
       if (data.success) {
         setAllProducts(data.data.products);
@@ -115,6 +128,7 @@ function CategoryList() {
     try {
       const res = await fetch(`${BASE_URL}/admin/categories/${selectedCategory.id}`, {
         method: 'DELETE',
+        headers: getAuthHeaders()
       });
       const data = await res.json();
       if (data.success) {
@@ -141,7 +155,7 @@ function CategoryList() {
       
       const res = await fetch(url, {
         method: method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           name: formData.name,
           description: formData.description || null

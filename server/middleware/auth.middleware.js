@@ -8,7 +8,7 @@ const authenticateToken = (req, res, next) => {
         return res.status(401).json({ error: 'Thiếu token xác thực' });
     }
 
-    jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key', (err, user) => {
+    jwt.verify(token, process.env.JWT_SECRET || "SECRET_KEY", (err, user) => {
         if (err) {
             return res.status(403).json({ error: 'Token không hợp lệ hoặc hết hạn' });
         }

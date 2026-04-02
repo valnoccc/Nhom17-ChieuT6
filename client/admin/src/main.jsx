@@ -1,14 +1,24 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom'; // Add this
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './index.css';
+import LoginForm from './LoginForm';
 import App from './App';
+import Nicetry from './Nicetry';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <BrowserRouter> {/* Wrap App with BrowserRouter */}
-      <App />
+    <BrowserRouter>
+      <ToastContainer position="top-right" autoClose={3000} />
+      <Routes>
+        <Route path="/login" element={<LoginForm />} />
+        <Route path="/admin" element={<App />} />
+        <Route path="/nicetry" element={<Nicetry />} />
+        <Route path="/" element={<LoginForm />} />
+      </Routes>
     </BrowserRouter>
   </React.StrictMode>
 );

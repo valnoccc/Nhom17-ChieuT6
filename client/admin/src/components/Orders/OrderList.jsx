@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import PageWrapper from '../Layout/PageWrapper';
 
-//const BASE_URL = "http://localhost:10000";
- const BASE_URL = 'https://nhom17-chieut6.onrender.com';
-
+//const BASE_URL = 'http://localhost:10000';
+const BASE_URL = 'https://nhom17-chieut6.onrender.com';
 function OrderList() {
   const [orders, setOrders] = useState([]);
   const [allOrders, setAllOrders] = useState([]); // Store all orders for stats
@@ -20,6 +19,15 @@ function OrderList() {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [newStatus, setNewStatus] = useState('');
 
+  // Helper function to get auth headers
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem('adminToken');
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    };
+  };
+
   // Fetch orders, and all orders for stats
   useEffect(() => {
     fetchOrders();
@@ -29,7 +37,9 @@ function OrderList() {
   const fetchOrders = async (page = 1) => {
     setLoading(true);
     try {
-      const res = await fetch(`${BASE_URL}/admin/orders?page=${page}&limit=10`);
+      const res = await fetch(`${BASE_URL}/admin/orders?page=${page}&limit=10`, {
+        headers: getAuthHeaders()
+      });
       const data = await res.json();
       if (data.success) {
         setOrders(data.data.orders);
@@ -53,7 +63,9 @@ function OrderList() {
   const fetchAllOrdersForStats = async () => {
     try {
       // Fetch first page with a large limit to get all orders
-      const res = await fetch(`${BASE_URL}/admin/orders?page=1&limit=9999`);
+      const res = await fetch(`${BASE_URL}/admin/orders?page=1&limit=9999`, {
+        headers: getAuthHeaders()
+      });
       const data = await res.json();
       if (data.success) {
         setAllOrders(data.data.orders);
@@ -108,7 +120,7 @@ function OrderList() {
     try {
       const res = await fetch(`${BASE_URL}/admin/orders/${selectedOrder.id}/status`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ status: newStatus }),
       });
       const data = await res.json();

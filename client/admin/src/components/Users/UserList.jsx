@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import PageWrapper from '../Layout/PageWrapper';
 
-//const BASE_URL = "http://localhost:10000";
-const BASE_URL = 'https://nhom17-chieut6.onrender.com'; // Update if local
+//const BASE_URL = 'http://localhost:10000';
+const BASE_URL = 'https://nhom17-chieut6.onrender.com';
 
 function UserList() {
   const [users, setUsers] = useState([]);
@@ -20,6 +20,15 @@ function UserList() {
   const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, pages: 0 });
   const [updatingRole, setUpdatingRole] = useState(null);
 
+  // Helper function to get auth headers
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem('adminToken');
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    };
+  };
+
   // Fetch users and stats
   useEffect(() => {
     fetchUsers();
@@ -29,7 +38,9 @@ function UserList() {
   const fetchUsers = async (page = 1) => {
     setLoading(true);
     try {
-      const res = await fetch(`${BASE_URL}/admin/users?page=${page}&limit=10`);
+      const res = await fetch(`${BASE_URL}/admin/users?page=${page}&limit=10`, {
+        headers: getAuthHeaders()
+      });
       const data = await res.json();
       if (data.success) {
         setUsers(data.data.users);
@@ -52,7 +63,9 @@ function UserList() {
   const fetchStats = async () => {
     try {
       // Get dashboard stats
-      const res = await fetch(`${BASE_URL}/admin/dashboard/stats`);
+      const res = await fetch(`${BASE_URL}/admin/dashboard/stats`, {
+        headers: getAuthHeaders()
+      });
       const data = await res.json();
       if (data.success) {
         const totals = data.data;
@@ -79,7 +92,7 @@ function UserList() {
     try {
       const res = await fetch(`${BASE_URL}/admin/users/${userId}/role`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ role: newRole }),
       });
       const data = await res.json();
@@ -99,7 +112,10 @@ function UserList() {
   const handleDelete = async (userId) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
       try {
-        const res = await fetch(`${BASE_URL}/admin/users/${userId}`, { method: 'DELETE' });
+        const res = await fetch(`${BASE_URL}/admin/users/${userId}`, {
+          method: 'DELETE',
+          headers: getAuthHeaders()
+        });
         const data = await res.json();
         if (data.success) {
           fetchUsers(pagination.page);
