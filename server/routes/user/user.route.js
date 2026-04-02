@@ -1,16 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../../controller/user/user.controller');
+const { authenticateToken } = require('../../middleware/auth.middleware');
 
 // Public routes (không cần authentication)
 router.post('/login', userController.login);
 router.post('/register', userController.register);
 
-// Protected routes (cần authentication - có thể thêm middleware sau)
-router.get('/', userController.getAllUsers);
-
-//dang nhap
-router.post('/login', userController.login);
-//dang ky
-router.post('/register', userController.register);
+// Protected routes (cần authentication)
+router.get('/', authenticateToken, userController.getAllUsers);
 module.exports = router;

@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({ path: `${__dirname}/.env` });
 const express = require('express');
 // SỬA: Dùng mysql2 bản thường (hỗ trợ Callback) thay vì /promise
 const mysql = require('mysql2');
@@ -31,6 +31,22 @@ const db = mysql.createPool({
     database: process.env.DB_NAME,
     port: process.env.DB_PORT,
     ssl: { minVersion: 'TLSv1.2', rejectUnauthorized: true }
+});
+
+console.log('🔗 Database config:');
+console.log('  Host:', process.env.DB_HOST);
+console.log('  User:', process.env.DB_USER);
+console.log('  Database:', process.env.DB_NAME);
+console.log('  Port:', process.env.DB_PORT);
+
+// Test kết nối database
+db.getConnection((err, connection) => {
+    if (err) {
+        console.error('❌ Database connection error:', err.message);
+    } else {
+        console.log('✅ Database connected successfully!');
+        connection.release();
+    }
 });
 
 // Quan trọng: Gán db vào app để các controller gọi req.app.get('db') chạy được callback

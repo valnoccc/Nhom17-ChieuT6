@@ -28,13 +28,24 @@ const register = (req, res) => {
     const db = req.app.get('db');
     const { full_name, email, password, phone } = req.body;
 
+    console.log('📝 Register request:', { full_name, email, phone });
+
     if (!full_name || !email || !password) {
+        console.error('❌ Thiếu dữ liệu:', { full_name, email, password });
         return res.status(400).json({ success: false, message: "Thiếu dữ liệu bắt buộc" });
     }
 
     const checkSql = "SELECT * FROM Users WHERE email = ?";
     db.query(checkSql, [email], async (err, results) => {
-        if (err) return res.status(500).json({ success: false, error: err.message });
+        if (err) {
+            console.error('❌ Database error - Full details:');
+            console.error('Error message:', err.message);
+            console.error('Error code:', err.code);
+            console.error('Error sqlState:', err.sqlState);
+            console.error('Error stack:', err.stack);
+            console.error('Full error object:', err);
+            return res.status(500).json({ success: false, error: err.message, code: err.code });
+        }
 
         if (results.length > 0) {
             return res.status(400).json({ success: false, message: "Email đã tồn tại" });
@@ -84,7 +95,7 @@ const login = (req, res) => {
         // Tạo token
         const token = jwt.sign(
             { id: user.id, email: user.email, role: user.role },
-            process.env.JWT_SECRET || "SECRET_KEY",
+            process.env.JWT_SECRET || "your-secret-key",
             { expiresIn: "1h" }
         );
 
