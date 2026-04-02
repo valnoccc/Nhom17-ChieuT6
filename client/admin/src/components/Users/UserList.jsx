@@ -177,7 +177,7 @@ function UserList() {
             <dd className="mt-1 text-3xl font-semibold text-gray-900">{stats.totalCustomers}</dd>
           </div>
         </div>
-       
+
       </div>
 
       {/* Role Distribution Chart */}
@@ -306,11 +306,10 @@ function UserList() {
                     <button
                       key={pageNum + 1}
                       onClick={() => fetchUsers(pageNum + 1)}
-                      className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                        pagination.page === pageNum + 1
-                          ? 'z-10 bg-indigo-50 border-indigo-500 text-indigo-600'
-                          : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
-                      }`}
+                      className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${pagination.page === pageNum + 1
+                        ? 'z-10 bg-indigo-50 border-indigo-500 text-indigo-600'
+                        : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                        }`}
                     >
                       {pageNum + 1}
                     </button>

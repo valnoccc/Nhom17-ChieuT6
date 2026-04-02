@@ -5,8 +5,8 @@ import {
 } from 'recharts';
 import PageWrapper from '../Layout/PageWrapper';
 
-const BASE_URL = 'https://nhom17-chieut6.onrender.com';
 //const BASE_URL = 'http://localhost:10000';
+const BASE_URL = 'https://nhom17-chieut6.onrender.com';
 
 function Dashboard() {
   const [stats, setStats] = useState({
@@ -346,7 +346,7 @@ function Dashboard() {
           </div>
         </div>
 
-       
+
       </div>
     </PageWrapper>
   );

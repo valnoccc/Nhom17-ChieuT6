@@ -3,6 +3,7 @@ import { FaShoppingCart, FaStar, FaSpinner } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { useCart } from "../../../context/CartContext";
 import axios from "axios";
+import { API } from "../../../services/config";
 
 const PLACEHOLDER_IMG = "https://via.placeholder.com/300x300?text=Elmich+S%E1%BA%A3n+Ph%E1%BA%A9m";
 
@@ -13,25 +14,17 @@ const FlashSale = () => {
 
   // HÀM XỬ LÝ ẢNH
   const getImageUrl = (url) => {
-    if (!url) return PLACEHOLDER_IMG;
-    if (url.startsWith('http')) return url;
-    
-    // Lacoste kiểm tra xem folder ảnh của bạn tên là gì nhé (vd: images hay product-img)
-    const finalUrl = `http://localhost:10000/public/images/${url}`;
-    
-    // Dòng này để bạn copy link dán lên trình duyệt test xem ảnh có tồn tại không
-    console.log("Link ảnh kiểm tra:", finalUrl); 
-    
-    return finalUrl;
-  };
+    const imgUrl = API.IMAGE_URL(url);
+    console.log("Link ảnh kiểm tra:", imgUrl);
+    return imgUrl;
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("http://localhost:10000/api/products?limit=5");
+        const response = await axios.get(`${API.PRODUCTS}?page=1&limit=5`);
         if (response.data && response.data.success) {
-          setProducts(response.data.data); 
+          setProducts(response.data.data);
         }
       } catch (error) {
         console.error("Lỗi kết nối API:", error);
@@ -61,7 +54,7 @@ const FlashSale = () => {
     <section className="my-10 w-full px-4 md:px-10 lg:px-16 xl:px-24">
       <div className="w-full">
         <div className="bg-[#f04e6c] rounded-2xl p-6 lg:p-10 shadow-lg w-full">
-          
+
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
             <div className="flex items-center gap-5">
               <div className="flex flex-col items-center italic font-black transform -skew-x-12 bg-yellow-400 py-2 px-4 rounded">
@@ -83,14 +76,14 @@ const FlashSale = () => {
           </div>
 
           {loading ? (
-            <div className="flex justify-center py-20"><FaSpinner className="animate-spin text-white text-3xl"/></div>
+            <div className="flex justify-center py-20"><FaSpinner className="animate-spin text-white text-3xl" /></div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 lg:gap-6">
               {products.map((product) => (
                 <div key={product.id} className="bg-white rounded-xl p-4 flex flex-col h-full group shadow-md hover:shadow-xl transition-all">
                   <Link to={`/product/${product.id}`} className="w-full mb-4 pt-4 flex flex-col items-center h-[180px]">
                     <img
-                      src={getImageUrl(product.thumbnail_url)} 
+                      src={getImageUrl(product.thumbnail_url)}
                       alt={product.name}
                       onError={(e) => { e.target.onerror = null; e.target.src = PLACEHOLDER_IMG; }}
                       className="h-full object-contain group-hover:scale-105 transition-transform"

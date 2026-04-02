@@ -10,7 +10,7 @@ const LoginForm = () => {
     email: '',
     password: ''
   });
-  
+
   // 2. Quản lý lỗi
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -50,7 +50,7 @@ const LoginForm = () => {
   // 4. Xử lý khi bấm ĐĂNG NHẬP
   const handleLogin = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       toast.error("⚠️ Vui lòng kiểm tra lại thông tin đăng nhập!");
       return;
@@ -60,7 +60,7 @@ const LoginForm = () => {
 
     try {
       // Gọi API login từ user.controller.js
-      const response = await fetch('http://localhost:10000/api/users/login', {
+      const response = await fetch('https://nhom17-chieut6.onrender.com/api/users/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -115,9 +115,9 @@ const LoginForm = () => {
         <div className="w-full max-w-[500px] px-4">
           {/* Logo */}
           <div className="flex justify-center mb-8">
-            <img 
-              src={logo} 
-              alt="Elmich Logo" 
+            <img
+              src={logo}
+              alt="Elmich Logo"
               className="h-24 w-auto object-contain"
             />
           </div>
@@ -128,7 +128,7 @@ const LoginForm = () => {
 
           {/* FORM ĐĂNG NHẬP */}
           <form onSubmit={handleLogin} className="flex flex-col gap-4">
-            
+
             <div>
               <input
                 type="email"
@@ -178,14 +178,14 @@ const LoginForm = () => {
 
             {/* Nút Mạng Xã Hội */}
             <div className="flex justify-center gap-4">
-              <button 
+              <button
                 type="button"
                 className="flex items-center justify-center gap-2 bg-[#3b5998] text-white px-6 py-2.5 w-[140px] hover:bg-blue-800 transition-colors shadow-sm active:scale-95 disabled:opacity-60"
                 disabled={isLoading}
               >
                 <FaFacebookF size={16} /> <span className="text-[13px]">Facebook</span>
               </button>
-              <button 
+              <button
                 type="button"
                 className="flex items-center justify-center gap-2 bg-[#dd4b39] text-white px-6 py-2.5 w-[140px] hover:bg-red-700 transition-colors shadow-sm active:scale-95 disabled:opacity-60"
                 disabled={isLoading}
