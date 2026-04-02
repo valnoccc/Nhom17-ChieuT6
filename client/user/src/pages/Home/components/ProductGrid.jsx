@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { API } from '../../../services/config';
 import { FaSpinner } from 'react-icons/fa';
 // ================= THÊM DÒNG NÀY ĐỂ HẾT LỖI =================
 import { Link } from 'react-router-dom';
@@ -30,14 +31,18 @@ const ProductGrid = ({ title = "Danh sách" }) => {
             // Xử lý link ảnh
             let imgUrl = PLACEHOLDER_IMG;
             if (item.thumbnail_url) {
-              imgUrl = API.IMAGE_URL(item.thumbnail_url);
-              return {
-                ...item,
-                image: imgUrl,
+              imgUrl = item.thumbnail_url.startsWith('http')
+                ? item.thumbnail_url
+                : `http://localhost:10000/public/images/${item.thumbnail_url}`;
+            }
 
-                oldPrice: item.old_price || item.oldPrice || null,
-              };
-            });
+            return {
+              ...item,
+              image: imgUrl,
+
+              oldPrice: item.old_price || item.oldPrice || null,
+            };
+          });
 
           setProducts(formattedProducts);
         }
