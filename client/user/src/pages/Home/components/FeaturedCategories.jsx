@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { FaShoppingCart, FaChevronRight, FaSpinner } from "react-icons/fa";
-import { Link } from "react-router-dom"; 
+import { Link } from "react-router-dom";
 import { useCart } from "../../../context/CartContext";
 import { toast } from 'react-toastify';
-import axios from "axios"; 
+import axios from "axios";
 
 import imgBinhGiuNhiet from "../../../images/binh_giu_nhiet.png";
 import imgBoNoi from "../../../images/bo_noi.png";
 import imgDungCu from "../../../images/dung_cu_nha_bep.png";
 import imgMayEp from "../../../images/may_ep.png";
 import imgMayXay from "../../../images/may_xay_sinh_to.png";
-import imgCeramic from "../../../images/noi_chao_ceramic.png"; 
+import imgCeramic from "../../../images/noi_chao_ceramic.png";
 
 import imgDefault from "../../../images/may_xay_sinh_to_mini_elmich_ble9244.png";
 const PLACEHOLDER_IMG = imgDefault;
@@ -23,7 +23,7 @@ const vouchers = [
 ];
 
 const categories = [
-  { id: 1, name: "Tủ lạnh", img: imgCeramic }, 
+  { id: 1, name: "Tủ lạnh", img: imgCeramic },
   { id: 2, name: "Máy giặt", img: imgMayXay },
   { id: 3, name: "Quạt", img: imgBinhGiuNhiet },
   { id: 4, name: "Máy lọc không khí", img: imgBoNoi },
@@ -39,16 +39,16 @@ const FeaturedCategories = () => {
   const getImageUrl = (url) => {
     if (!url) return PLACEHOLDER_IMG;
     if (url.startsWith('http')) return url;
-    return `http://localhost:10000/public/images/${url}`; 
+    return `http://localhost:10000/public/images/${url}`;
   };
 
   useEffect(() => {
     const fetchTopProducts = async () => {
       try {
         setLoadingProducts(true);
-        const response = await axios.get("http://localhost:10000/api/products?limit=5");
+        const response = await axios.get("http://localhost:10000/api/products?page=1&limit=5");
         if (response.data && response.data.success) {
-          setTopProducts(response.data.data); 
+          setTopProducts(response.data.data);
         }
       } catch (error) {
         console.error("Lỗi API Top Sản Phẩm:", error);
@@ -91,7 +91,7 @@ const FeaturedCategories = () => {
           <h2 className="text-[20px] lg:text-[22px] font-bold text-[#333] mb-6 uppercase">TOP SẢN PHẨM ĐƯỢC QUAN TÂM</h2>
           <div className="relative">
             {loadingProducts ? (
-               <div className="flex justify-center py-10"><FaSpinner className="animate-spin text-[#e30019] text-3xl"/></div>
+              <div className="flex justify-center py-10"><FaSpinner className="animate-spin text-[#e30019] text-3xl" /></div>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
                 {topProducts.map((product) => (
@@ -102,7 +102,7 @@ const FeaturedCategories = () => {
                     <Link to={`/product/${product.id}`}><h3 className="text-[15px] text-[#333] font-medium mb-3 line-clamp-2 min-h-[44px] hover:text-[#e30019]">{product.name}</h3></Link>
                     <div className="mt-auto flex justify-between items-center">
                       <span className="text-[#e30019] text-[18px] font-bold">{Number(product.price).toLocaleString('vi-VN')}đ</span>
-                      <button onClick={() => {addToCart(product); toast.success("Đã thêm!");}} className="bg-[#e30019] text-white w-9 h-9 rounded-full flex items-center justify-center hover:bg-red-800"><FaShoppingCart size={15} /></button>
+                      <button onClick={() => { addToCart(product); toast.success("Đã thêm!"); }} className="bg-[#e30019] text-white w-9 h-9 rounded-full flex items-center justify-center hover:bg-red-800"><FaShoppingCart size={15} /></button>
                     </div>
                   </div>
                 ))}

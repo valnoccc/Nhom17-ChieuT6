@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import PageWrapper from '../Layout/PageWrapper';
 
-//const BASE_URL = "http://localhost:10000";
+//const BASE_URL = 'http://localhost:10000';
 const BASE_URL = 'https://nhom17-chieut6.onrender.com';
 
 function ProductList() {
@@ -29,6 +29,15 @@ function ProductList() {
     thumbnail_url: ''
   });
 
+  // Helper function to get auth headers
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem('adminToken');
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    };
+  };
+
   // Fetch products, categories, and all products for stats
   useEffect(() => {
     fetchProducts();
@@ -39,7 +48,9 @@ function ProductList() {
   const fetchProducts = async (page = 1) => {
     setLoading(true);
     try {
-      const res = await fetch(`${BASE_URL}/admin/products?page=${page}&limit=10`);
+      const res = await fetch(`${BASE_URL}/admin/products?page=${page}&limit=10`, {
+        headers: getAuthHeaders()
+      });
       const data = await res.json();
       if (data.success) {
         setProducts(data.data.products);
@@ -63,7 +74,9 @@ function ProductList() {
   const fetchAllProductsForStats = async () => {
     try {
       // Fetch first page with a large limit to get all products
-      const res = await fetch(`${BASE_URL}/admin/products?page=1&limit=9999`);
+      const res = await fetch(`${BASE_URL}/admin/products?page=1&limit=9999`, {
+        headers: getAuthHeaders()
+      });
       const data = await res.json();
       if (data.success) {
         setAllProducts(data.data.products);
@@ -76,7 +89,9 @@ function ProductList() {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch(`${BASE_URL}/admin/categories`);
+      const res = await fetch(`${BASE_URL}/admin/categories`, {
+        headers: getAuthHeaders()
+      });
       const data = await res.json();
       if (data.success) {
         setCategories(data.data);
@@ -155,6 +170,7 @@ function ProductList() {
     try {
       const res = await fetch(`${BASE_URL}/admin/products/${selectedProduct.id}`, {
         method: 'DELETE',
+        headers: getAuthHeaders()
       });
       const data = await res.json();
       if (data.success) {
@@ -182,7 +198,7 @@ function ProductList() {
 
       const res = await fetch(url, {
         method: method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           name: formData.name,
           description: formData.description,

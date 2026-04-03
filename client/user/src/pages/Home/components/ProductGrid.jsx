@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { API } from '../../../services/config';
 import { FaSpinner } from 'react-icons/fa';
 // ================= THÊM DÒNG NÀY ĐỂ HẾT LỖI =================
 import { Link } from 'react-router-dom';
@@ -22,7 +23,11 @@ const ProductGrid = ({ title = "Danh sách" }) => {
       try {
         setLoading(true);
         // Lấy 7 sản phẩm để cộng với 1 Banner = 8 ô (Vừa đẹp 2 hàng lưới)
+<<<<<<< HEAD
         const response = await axios.get("http://localhost:10000/api/products?limit=7");
+=======
+        const response = await axios.get("http://localhost:10000/api/products?page=1&limit=7");
+>>>>>>> Admin-FE-Test
 
         if (response.data && response.data.success) {
           // XỬ LÝ DỮ LIỆU: Đổi tên cột từ API cho khớp với ProductCard

@@ -1,10 +1,10 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Link, useLocation, useSearchParams } from 'react-router-dom'; 
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
 import SidebarFilter from './components/SidebarFilter';
-import ProductCard from '../Home/components/ProductCard'; 
+import ProductCard from '../Home/components/ProductCard';
 
 import imgDefault from "../../images/may_xay_sinh_to_mini_elmich_ble9244.png";
 const PLACEHOLDER_IMG = imgDefault;
@@ -23,14 +23,14 @@ const ProductListPage = () => {
 
   // === ĐỌC TỪ KHÓA TÌM KIẾM (SEARCH QUERY) TỪ THANH URL ===
   const [searchParams] = useSearchParams();
-  const searchQuery = searchParams.get("search") || ""; 
+  const searchQuery = searchParams.get("search") || "";
 
   const [products, setProducts] = useState([]);
   const [filters, setFilters] = useState({ categories: initialCategory ? [initialCategory] : [], minPrice: 0, maxPrice: Infinity, rating: 0 });
   const [activeSort, setActiveSort] = useState('Phổ biến');
   const [currentPage, setCurrentPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(true); 
-  const itemsPerPage = 10; 
+  const [isLoading, setIsLoading] = useState(true);
+  const itemsPerPage = 10;
 
   const sortOptions = ["Phổ biến", "Giá thấp đến cao", "Giá cao đến thấp"];
 
@@ -38,13 +38,13 @@ const ProductListPage = () => {
     const fetchAllProducts = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get("http://localhost:10000/api/products?limit=100");
-        
+        const response = await axios.get("http://localhost:10000/api/products?page=1&limit=100");
+
         if (response.data && response.data.success) {
           const formattedData = response.data.data.map(item => {
-            let catName = "Dụng cụ nhà bếp"; 
+            let catName = "Dụng cụ nhà bếp";
             const nameLower = (item.name || "").toLowerCase();
-            
+
             if (nameLower.includes('tủ lạnh')) catName = 'Tủ lạnh';
             else if (nameLower.includes('giặt')) catName = 'Máy giặt';
             else if (nameLower.includes('quạt')) catName = 'Quạt';
@@ -56,7 +56,7 @@ const ProductListPage = () => {
               ...item,
               image: item.thumbnail_url?.startsWith('http') ? item.thumbnail_url : `http://localhost:10000/public/images/${item.thumbnail_url}`,
               category: catName,
-              price: Number(item.price || 0), 
+              price: Number(item.price || 0),
               oldPrice: item.old_price || item.oldPrice ? Number(item.old_price || item.oldPrice) : null,
               rating: item.rating || 5
             };
@@ -64,7 +64,7 @@ const ProductListPage = () => {
 
           let duplicatedProducts = [];
           for (let i = 0; i < 5; i++) {
-            duplicatedProducts = [...duplicatedProducts, ...formattedData.map(p => ({...p, id: `${p.id}_clone_${i}`}))];
+            duplicatedProducts = [...duplicatedProducts, ...formattedData.map(p => ({ ...p, id: `${p.id}_clone_${i}` }))];
           }
 
           duplicatedProducts.push(
@@ -75,7 +75,7 @@ const ProductListPage = () => {
 
           setProducts(duplicatedProducts);
         }
-      } catch (error) { console.error("Lỗi API:", error); } 
+      } catch (error) { console.error("Lỗi API:", error); }
       finally { setIsLoading(false); }
     };
     fetchAllProducts();
@@ -104,7 +104,7 @@ const ProductListPage = () => {
     if (filters.categories.length > 0) {
       result = result.filter(p => filters.categories.includes(p.category));
     }
-    
+
     // 3. Lọc theo giá
     result = result.filter(p => p.price >= filters.minPrice && p.price <= filters.maxPrice);
 
@@ -112,14 +112,14 @@ const ProductListPage = () => {
     else if (activeSort === "Giá cao đến thấp") result.sort((a, b) => b.price - a.price);
 
     return result;
-  }, [products, filters, activeSort, searchQuery]); 
+  }, [products, filters, activeSort, searchQuery]);
 
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
   const currentItems = filteredProducts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const handleFilterChange = (newFilters) => {
     setFilters(newFilters);
-    setCurrentPage(1); 
+    setCurrentPage(1);
   };
 
   return (
@@ -127,8 +127,8 @@ const ProductListPage = () => {
       <Header />
       <div className="bg-white py-3 border-b border-gray-200 sticky top-0 z-40">
         <div className="max-w-[1536px] mx-auto px-4 md:px-8 lg:px-12 text-[13px] text-gray-500">
-          <Link to="/" className="hover:text-[#e30019]">🏠 Trang chủ</Link> 
-          <span> / </span> 
+          <Link to="/" className="hover:text-[#e30019]">🏠 Trang chủ</Link>
+          <span> / </span>
           {searchQuery ? (
             <span className="text-gray-800 font-medium">Kết quả tìm kiếm cho: "{searchQuery}"</span>
           ) : (
@@ -150,7 +150,7 @@ const ProductListPage = () => {
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-[14px] text-gray-600 mr-2">Sắp xếp theo:</span>
               {sortOptions.map((option) => (
-                <button key={option} onClick={() => {setActiveSort(option); setCurrentPage(1);}} className={`px-3 py-1.5 text-[13px] rounded transition-colors ${activeSort === option ? 'bg-[#ed1c24] text-white font-medium shadow-sm' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
+                <button key={option} onClick={() => { setActiveSort(option); setCurrentPage(1); }} className={`px-3 py-1.5 text-[13px] rounded transition-colors ${activeSort === option ? 'bg-[#ed1c24] text-white font-medium shadow-sm' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
                   {option}
                 </button>
               ))}
@@ -158,10 +158,10 @@ const ProductListPage = () => {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 xl:gap-5 mb-10">
-            {isLoading ? [...Array(10)].map((_, i) => <ProductSkeleton key={i} />) : 
-             currentItems.length === 0 ? (
-               <div className="col-span-full py-20 text-center text-gray-500 bg-white rounded-lg">Không tìm thấy sản phẩm nào phù hợp với từ khóa "{searchQuery}".</div>
-             ) : currentItems.map(p => <ProductCard key={p.id} product={p} />)}
+            {isLoading ? [...Array(10)].map((_, i) => <ProductSkeleton key={i} />) :
+              currentItems.length === 0 ? (
+                <div className="col-span-full py-20 text-center text-gray-500 bg-white rounded-lg">Không tìm thấy sản phẩm nào phù hợp với từ khóa "{searchQuery}".</div>
+              ) : currentItems.map(p => <ProductCard key={p.id} product={p} />)}
           </div>
 
           {!isLoading && totalPages > 1 && (

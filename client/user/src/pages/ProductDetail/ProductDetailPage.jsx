@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom'; 
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { FaShoppingCart, FaStar, FaSpinner } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { useCart } from '../../context/CartContext';
-import axios from 'axios'; 
+import axios from 'axios';
 import PageWrapper from '../../components/layout/PageWrapper';
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
 
 // ================= TẤT CẢ IMPORT PHẢI Ở TRÊN CÙNG =================
-import logoElmich from "../../images/logo_elmich.png"; 
+import logoElmich from "../../images/logo_elmich.png";
 import imgDefault from "../../images/may_xay_sinh_to_mini_elmich_ble9244.png";
 
 // ================= KHAI BÁO BIẾN TĨNH =================
@@ -23,10 +23,10 @@ const STATIC_VOUCHERS = [
 ];
 
 const ProductDetailPage = () => {
-  const { id } = useParams(); 
+  const { id } = useParams();
   const { addToCart } = useCart();
   const navigate = useNavigate();
-  
+
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState('');
@@ -36,7 +36,7 @@ const ProductDetailPage = () => {
   const getImageUrl = (url) => {
     if (!url) return PLACEHOLDER_IMG;
     if (url.startsWith('http')) return url;
-    return `http://localhost:10000/public/images/${url}`; 
+    return `http://localhost:10000/public/images/${url}`;
   };
 
   // 1. GỌI API LẤY CHI TIẾT SẢN PHẨM
@@ -45,15 +45,15 @@ const ProductDetailPage = () => {
       try {
         setLoading(true);
         const response = await axios.get(`http://localhost:10000/api/products/${id}`);
-        
+
         // Lấy đúng data từ Object API trả về
         if (response.data && response.data.success) {
-            const productData = response.data.data;
-            setProduct(productData);
-            // Dùng đúng cột thumbnail_url từ TiDB
-            setActiveImage(productData.thumbnail_url); 
+          const productData = response.data.data;
+          setProduct(productData);
+          // Dùng đúng cột thumbnail_url từ TiDB
+          setActiveImage(productData.thumbnail_url);
         } else {
-            toast.error("Không tìm thấy sản phẩm!");
+          toast.error("Không tìm thấy sản phẩm!");
         }
       } catch (error) {
         console.error("Lỗi khi lấy API:", error);
@@ -113,25 +113,25 @@ const ProductDetailPage = () => {
         </div>
 
         <main className="flex-grow max-w-[1440px] mx-auto px-4 md:px-8 py-8 w-full space-y-8">
-          
+
           <div className="bg-white rounded-xl shadow-sm p-6 lg:p-8 flex flex-col md:flex-row gap-10 lg:gap-14">
-            
+
             {/* HÌNH ẢNH */}
             <div className="w-full md:w-[45%] lg:w-[40%] flex flex-col gap-5">
               <div className="w-full aspect-square border border-gray-200 rounded-lg p-6 flex items-center justify-center bg-gray-50 relative">
-                 <div className="absolute top-4 left-4 bg-white px-3 py-1.5 rounded-md shadow-sm border border-gray-100 flex items-center gap-1 z-10">
-                    <img src={logoElmich} alt="elmich" className="h-4" />
-                    <span className="text-[11px] font-bold text-gray-700">CHUẨN CHÂU ÂU</span>
-                 </div>
-                 <img 
-                    src={getImageUrl(activeImage)} 
-                    alt={product.name} 
-                    onError={(e) => { e.target.onerror = null; e.target.src = PLACEHOLDER_IMG; }}
-                    className="w-full h-full object-contain mix-blend-multiply transition-all" 
-                 />
+                <div className="absolute top-4 left-4 bg-white px-3 py-1.5 rounded-md shadow-sm border border-gray-100 flex items-center gap-1 z-10">
+                  <img src={logoElmich} alt="elmich" className="h-4" />
+                  <span className="text-[11px] font-bold text-gray-700">CHUẨN CHÂU ÂU</span>
+                </div>
+                <img
+                  src={getImageUrl(activeImage)}
+                  alt={product.name}
+                  onError={(e) => { e.target.onerror = null; e.target.src = PLACEHOLDER_IMG; }}
+                  className="w-full h-full object-contain mix-blend-multiply transition-all"
+                />
               </div>
               <div className="flex gap-3 overflow-x-auto pb-2">
-                <div 
+                <div
                   className="w-20 h-20 lg:w-24 lg:h-24 border-2 rounded-lg p-1.5 cursor-pointer flex-shrink-0 border-[#e30019]"
                 >
                   <img src={getImageUrl(product.thumbnail_url)} alt="thumb" className="w-full h-full object-contain mix-blend-multiply" />
@@ -144,7 +144,7 @@ const ProductDetailPage = () => {
               <h1 className="text-[26px] lg:text-[32px] font-bold text-gray-800 leading-tight mb-4 uppercase">
                 {product.name}
               </h1>
-              
+
               <div className="flex items-center gap-4 text-[14px] text-gray-600 mb-5 pb-5 border-b border-gray-100">
                 <span className="font-medium">🛒 Trong kho: {product.stock_quantity || 0}</span>
                 <span className="text-gray-300">|</span>
@@ -163,7 +163,7 @@ const ProductDetailPage = () => {
                 <div className="flex flex-wrap gap-2.5">
                   {STATIC_VOUCHERS.map((v, i) => (
                     <span key={i} onClick={() => handleCopyVoucher(v.code)} className="bg-red-50 text-[#e30019] border border-red-200 px-3 py-1.5 text-[13px] font-medium rounded-sm cursor-pointer hover:bg-[#e30019] hover:text-white transition-colors">
-                        {v.display}
+                      {v.display}
                     </span>
                   ))}
                 </div>
