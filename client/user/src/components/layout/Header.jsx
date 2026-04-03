@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom"; 
 import {
   FaSearch,
@@ -7,7 +7,12 @@ import {
   FaRegUser,
   FaBars,
   FaTimes,
-  FaRegEnvelope
+  FaRegEnvelope,
+  FaSignOutAlt,
+  FaUserCircle,
+  FaClipboardList,
+  FaHeart,
+  FaKey
 } from "react-icons/fa";
 import { useCart } from "../../context/CartContext";
 
@@ -16,6 +21,19 @@ const Header = () => {
   const totalItems = cartItems.reduce((total, item) => total + item.quantity, 0);
   
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const userMenuRef = useRef(null);
+
+  // CLICK OUTSIDE ĐỂ ĐÓNG MENU
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setIsUserMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
   
   // ================= STATE & HÀM TÌM KIẾM =================
   const [searchQuery, setSearchQuery] = useState("");
@@ -35,6 +53,9 @@ const Header = () => {
     navigate(`/products?search=${encodeURIComponent(keyword)}`);
   };
   // =======================================================
+  
+  // KIỂM TRA ĐĂNG NHẬP
+  const user = JSON.parse(localStorage.getItem('user'));
 
   return (
     <header className="w-full font-sans bg-white relative z-50">
@@ -120,14 +141,61 @@ const Header = () => {
               </div>
             </div>
 
-            <div className="flex items-center gap-2 group cursor-pointer">
-              <div className="w-9 h-9 border border-gray-200 rounded-full flex items-center justify-center group-hover:border-[#ed1c24] group-hover:bg-red-50 transition-colors">
-                <FaRegUser size={18} className="text-gray-700 group-hover:text-[#ed1c24]" />
+            {/* TÀI KHOẢN & DROPDOWN */}
+            <div className="relative" ref={userMenuRef}>
+              <div 
+                className="flex items-center gap-2 group cursor-pointer"
+                onClick={() => user ? setIsUserMenuOpen(!isUserMenuOpen) : null}
+              >
+                <div className="w-9 h-9 border border-gray-200 rounded-full flex items-center justify-center group-hover:border-[#ed1c24] group-hover:bg-red-50 transition-colors overflow-hidden bg-white">
+                  {user && user.avatar_url ? (
+                    <img 
+                      src={user.avatar_url.startsWith('http') ? user.avatar_url : `http://localhost:10000/public/images/${user.avatar_url}`} 
+                      alt="avatar" 
+                      className="w-full h-full object-cover" 
+                    />
+                  ) : (
+                    <FaRegUser size={18} className="text-gray-700 group-hover:text-[#ed1c24]" />
+                  )}
+                </div>
+                <div className="hidden lg:flex flex-col text-[13px] leading-tight font-bold">
+                  {user ? (
+                    <>
+                      <span className="text-gray-800">Xin chào,</span>
+                      <span className="text-[#ed1c24] truncate max-w-[120px]">{user.full_name || user.name || user.username}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Link to="/login" className="hover:text-[#ed1c24] transition-colors">Đăng nhập</Link>
+                      <Link to="/register" className="hover:text-[#ed1c24] transition-colors">Đăng ký</Link>
+                    </>
+                  )}
+                </div>
               </div>
-              <div className="hidden lg:flex flex-col text-[13px] leading-tight font-bold">
-                <Link to="/login" className="hover:text-[#ed1c24] transition-colors">Đăng nhập</Link>
-                <Link to="/register" className="hover:text-[#ed1c24] transition-colors">Đăng ký</Link>
-              </div>
+
+              {/* DROPDOWN MENU */}
+              {user && (
+                <div 
+                  className={`absolute top-full right-0 mt-3 w-[230px] bg-white rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-100 p-2 z-[999] transition-all duration-300 origin-top-right ${isUserMenuOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}
+                >
+                  <Link to="/account/profile" onClick={() => setIsUserMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-[14px] text-gray-700 hover:bg-red-50 hover:text-[#ed1c24] rounded-lg transition-colors font-medium">
+                    <FaUserCircle size={16} /> Thông tin cá nhân
+                  </Link>
+                  <Link to="/account/orders" onClick={() => setIsUserMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-[14px] text-gray-700 hover:bg-red-50 hover:text-[#ed1c24] rounded-lg transition-colors font-medium">
+                    <FaClipboardList size={16} /> Lịch sử đơn hàng
+                  </Link>
+                  <Link to="/account/password" onClick={() => setIsUserMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-[14px] text-gray-700 hover:bg-red-50 hover:text-[#ed1c24] rounded-lg transition-colors font-medium">
+                    <FaKey size={16} /> Đổi mật khẩu
+                  </Link>
+                  <div className="h-[1px] bg-gray-100 my-2 mx-2"></div>
+                  <button 
+                    onClick={() => { localStorage.removeItem('user'); window.location.reload(); }}
+                    className="flex w-full items-center gap-3 px-4 py-2.5 text-[14px] text-red-600 hover:bg-red-50 font-bold rounded-lg transition-colors"
+                  >
+                    <FaSignOutAlt size={16} /> Đăng xuất
+                  </button>
+                </div>
+              )}
             </div>
 
             <Link to="/cart" className="relative group">

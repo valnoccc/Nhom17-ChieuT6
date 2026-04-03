@@ -17,7 +17,7 @@ const FlashSale = () => {
     if (url.startsWith('http')) return url;
     
     // Lacoste kiểm tra xem folder ảnh của bạn tên là gì nhé (vd: images hay product-img)
-    const finalUrl = `http://localhost:10000/public/images/${url}`;
+    const finalUrl = `https://nhom17-chieut6.onrender.com/public/images/${url}`;
     
     // Dòng này để bạn copy link dán lên trình duyệt test xem ảnh có tồn tại không
     console.log("Link ảnh kiểm tra:", finalUrl); 
@@ -29,7 +29,7 @@ const FlashSale = () => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("http://localhost:10000/api/products?limit=5");
+        const response = await axios.get("https://nhom17-chieut6.onrender.com/api/products?limit=5");
         if (response.data && response.data.success) {
           setProducts(response.data.data); 
         }

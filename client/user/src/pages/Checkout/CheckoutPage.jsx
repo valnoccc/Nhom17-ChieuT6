@@ -68,6 +68,12 @@ const LOCATION_DATA = {
 const CheckoutPage = () => {
   const { cartItems } = useCart();
   const navigate = useNavigate(); // Khởi tạo hook chuyển trang
+
+  const getImageUrl = (url) => {
+    if (!url) return "https://via.placeholder.com/150?text=Elmich";
+    if (url.startsWith('http')) return url;
+    return `https://nhom17-chieut6.onrender.com/public/images/${url}`; 
+  };
   const [formData, setFormData] = useState({
     email: '', fullName: '', phone: '', address: '',
     province: '', district: '', ward: '', note: '', paymentMethod: 'VNPAY'
@@ -327,7 +333,12 @@ const CheckoutPage = () => {
                 <div key={item.id} className="flex items-center gap-4">
                   <div className="relative">
                     <div className="w-14 h-14 border border-gray-300 rounded bg-white p-1">
-                      <img src={item.image} alt={item.name} className="w-full h-full object-contain" />
+                      <img 
+                        src={getImageUrl(item.thumbnail_url || item.image)} 
+                        alt={item.name} 
+                        onError={(e) => { e.target.onerror = null; e.target.src = "https://via.placeholder.com/150?text=Elmich"; }}
+                        className="w-full h-full object-contain" 
+                      />
                     </div>
                     <span className="absolute -top-2.5 -right-2.5 bg-[#338dbc] text-white text-[11px] font-bold w-5 h-5 rounded-full flex items-center justify-center z-10">{item.quantity}</span>
                   </div>

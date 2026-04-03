@@ -22,7 +22,7 @@ const ProductGrid = ({ title = "Danh sách" }) => {
       try {
         setLoading(true);
         // Lấy 7 sản phẩm để cộng với 1 Banner = 8 ô (Vừa đẹp 2 hàng lưới)
-        const response = await axios.get("http://localhost:10000/api/products?limit=7");
+        const response = await axios.get("https://nhom17-chieut6.onrender.com/api/products?limit=7");
         
         if (response.data && response.data.success) {
           // XỬ LÝ DỮ LIỆU: Đổi tên cột từ API cho khớp với ProductCard
@@ -32,7 +32,7 @@ const ProductGrid = ({ title = "Danh sách" }) => {
             if (item.thumbnail_url) {
               imgUrl = item.thumbnail_url.startsWith('http') 
                 ? item.thumbnail_url 
-                : `http://localhost:10000/public/images/${item.thumbnail_url}`;
+                : `https://nhom17-chieut6.onrender.com/public/images/${item.thumbnail_url}`;
             }
 
             return {

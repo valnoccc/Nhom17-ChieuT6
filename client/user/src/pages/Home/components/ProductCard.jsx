@@ -10,7 +10,6 @@ const ProductCard = ({ product }) => {
   const handleAddToCart = (e) => {
     e.preventDefault(); // Ngăn việc click giỏ hàng bị nhảy trang
     addToCart(product);
-    toast.success("Đã thêm vào giỏ hàng!");
   };
 
   // ================= XỬ LÝ ĐỊNH DẠNG TIỀN TỆ Ở ĐÂY =================

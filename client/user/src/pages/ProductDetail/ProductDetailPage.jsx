@@ -36,7 +36,7 @@ const ProductDetailPage = () => {
   const getImageUrl = (url) => {
     if (!url) return PLACEHOLDER_IMG;
     if (url.startsWith('http')) return url;
-    return `http://localhost:10000/public/images/${url}`; 
+    return `https://nhom17-chieut6.onrender.com/public/images/${url}`; 
   };
 
   // 1. GỌI API LẤY CHI TIẾT SẢN PHẨM
@@ -44,7 +44,7 @@ const ProductDetailPage = () => {
     const fetchProductDetail = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`http://localhost:10000/api/products/${id}`);
+        const response = await axios.get(`https://nhom17-chieut6.onrender.com/api/products/${id}`);
         
         // Lấy đúng data từ Object API trả về
         if (response.data && response.data.success) {

@@ -96,11 +96,83 @@ const login = (req, res) => {
                 id: user.id,
                 full_name: user.full_name,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                phone: user.phone,
+                avatar_url: user.avatar_url
             }
         });
     });
 };
 
-module.exports = { getAllUsers, login, register };
+const getProfile = (req, res) => {
+    const db = req.app.get('db');
+    const { id } = req.params;
+    const sql = "SELECT id, full_name, email, phone, avatar_url, address, role FROM Users WHERE id = ?";
+    db.query(sql, [id], (err, results) => {
+        if (err) return res.status(500).json({ success: false, message: err.message });
+        if (results.length === 0) return res.status(404).json({ success: false, message: "User not found" });
+        res.json({ success: true, data: results[0] });
+    });
+};
+
+const updateProfile = (req, res) => {
+    const db = req.app.get('db');
+    const { id } = req.params;
+    const { full_name, phone } = req.body;
+    let avatar_url = req.file ? `avatars/${req.file.filename}` : undefined;
+    
+    let sql = "UPDATE Users SET full_name = ?, phone = ?";
+    const params = [full_name, phone];
+    
+    if (avatar_url !== undefined) {
+        sql += ", avatar_url = ?";
+        params.push(avatar_url);
+    }
+    sql += " WHERE id = ?";
+    params.push(id);
+    
+    db.query(sql, params, (err, result) => {
+        if (err) return res.status(500).json({ success: false, message: err.message });
+        
+        db.query("SELECT id, full_name, email, phone, avatar_url, role FROM Users WHERE id = ?", [id], (err, results) => {
+            if (err) return res.status(500).json({ success: false, message: err.message });
+            res.json({ 
+                success: true, 
+                message: "Cập nhật thành công",
+                data: results[0]
+            });
+        });
+    });
+};
+
+const changePassword = (req, res) => {
+    const db = req.app.get('db');
+    const { id, old_password, new_password } = req.body;
+    
+    if (!old_password || !new_password) {
+        return res.status(400).json({ success: false, message: "Vui lòng nhập mật khẩu cũ và mới" });
+    }
+    
+    db.query("SELECT password_hash FROM Users WHERE id = ?", [id], async (err, results) => {
+        if (err) return res.status(500).json({ success: false, message: err.message });
+        if (results.length === 0) return res.status(404).json({ success: false, message: "Không tìm thấy người dùng" });
+        
+        const isMatch = await bcrypt.compare(old_password, results[0].password_hash);
+        if (!isMatch) {
+            return res.status(400).json({ success: false, message: "Mật khẩu cũ không chính xác" });
+        }
+        
+        try {
+            const newHash = await bcrypt.hash(new_password, 10);
+            db.query("UPDATE Users SET password_hash = ? WHERE id = ?", [newHash, id], (updateErr) => {
+                 if (updateErr) return res.status(500).json({ success: false, message: updateErr.message });
+                 res.json({ success: true, message: "Đổi mật khẩu thành công!" });
+            });
+        } catch (hashError) {
+            res.status(500).json({ success: false, message: "Lỗi mã hoá mật khẩu" });
+        }
+    });
+};
+
+module.exports = { getAllUsers, login, register, getProfile, updateProfile, changePassword };
 
