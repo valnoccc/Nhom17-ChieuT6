@@ -38,7 +38,7 @@ const ProductListPage = () => {
     const fetchAllProducts = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get("http://localhost:10000/api/products?page=1&limit=100");
+        const response = await axios.get("https://nhom17-chieut6.onrender.com/api/products?limit=100");
 
         if (response.data && response.data.success) {
           const formattedData = response.data.data.map(item => {
@@ -54,7 +54,7 @@ const ProductListPage = () => {
 
             return {
               ...item,
-              image: item.thumbnail_url?.startsWith('http') ? item.thumbnail_url : `http://localhost:10000/public/images/${item.thumbnail_url}`,
+              image: item.thumbnail_url?.startsWith('http') ? item.thumbnail_url : `https://nhom17-chieut6.onrender.com/public/images/${item.thumbnail_url}`,
               category: catName,
               price: Number(item.price || 0),
               oldPrice: item.old_price || item.oldPrice ? Number(item.old_price || item.oldPrice) : null,

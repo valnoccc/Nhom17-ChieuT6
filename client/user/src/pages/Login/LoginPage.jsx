@@ -4,6 +4,7 @@ import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
 import { FaFacebookF, FaGoogle } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+import axios from 'axios';
 import PageWrapper from '../../components/layout/PageWrapper';
 
 const LoginPage = () => {
@@ -25,45 +26,40 @@ const LoginPage = () => {
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
-  // 3. Hàm kiểm tra dữ liệu
-  const validateForm = () => {
-    let newErrors = {};
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    // Regex số điện thoại VN (10 số)
-    const phoneRegex = /(03|05|07|08|09|01[2|6|8|9])+([0-9]{8})\b/;
-
-    // Kiểm tra ô tài khoản
-    if (!formData.username.trim()) {
-      newErrors.username = "Vui lòng nhập số điện thoại hoặc email.";
-    } else if (!emailRegex.test(formData.username) && !phoneRegex.test(formData.username)) {
-      newErrors.username = "Định dạng email hoặc số điện thoại không hợp lệ.";
-    }
-
-    // Kiểm tra ô mật khẩu
-    if (!formData.password) {
-      newErrors.password = "Vui lòng nhập mật khẩu.";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự.";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0; // Trả về true nếu không có lỗi nào
-  };
-
-  // 4. Xử lý khi bấm ĐĂNG NHẬP
-  const handleLogin = (e) => {
-    e.preventDefault(); // Chặn hành vi load lại trang của form
+  // 3. Xử lý khi bấm ĐĂNG NHẬP
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setErrors({});
     
-    if (validateForm()) {
-      toast.success("🚀 Đăng nhập thành công!");
-      console.log("Dữ liệu gửi đi:", formData);
-      
-      // Chuyển hướng về trang chủ sau 1 giây (Giả lập gọi API thành công)
-      setTimeout(() => {
-        navigate('/');
-      }, 1000);
-    } else {
-      toast.error("⚠️ Vui lòng kiểm tra lại thông tin đăng nhập!");
+    if (!formData.username.trim() || !formData.password) {
+       toast.error("Vui lòng nhập Email và Mật khẩu!");
+       return;
+    }
+    
+    try {
+        const res = await axios.post('http://localhost:10000/api/users/login', {
+            email: formData.username,
+            password: formData.password
+        });
+        
+        if (res.data.success) {
+            toast.success("🚀 Đăng nhập thành công!");
+            localStorage.setItem('user', JSON.stringify({
+                 id: res.data.user.id,
+                 username: res.data.user.email,
+                 name: res.data.user.full_name || res.data.user.email.split('@')[0],
+                 full_name: res.data.user.full_name,
+                 email: res.data.user.email,
+                 phone: res.data.user.phone,
+                 avatar_url: res.data.user.avatar_url
+            }));
+            localStorage.setItem('token', res.data.token);
+            setTimeout(() => {
+                navigate('/');
+            }, 1000);
+        }
+    } catch (err) {
+        toast.error(err.response?.data?.message || "⚠️ Vui lòng kiểm tra lại thông tin đăng nhập!");
     }
   };
 
@@ -99,7 +95,7 @@ const LoginPage = () => {
                   name="username"
                   value={formData.username}
                   onChange={handleInputChange}
-                  placeholder="Nhập số điện thoại hoặc email"
+                  placeholder="Nhập Email"
                   className={`w-full border ${errors.username ? 'border-red-500 bg-red-50' : 'border-gray-300'} p-3 outline-none focus:border-[#e30019] transition-colors text-[14px] bg-white`}
                 />
                 {errors.username && <p className="text-red-500 text-[12px] italic mt-1">{errors.username}</p>}

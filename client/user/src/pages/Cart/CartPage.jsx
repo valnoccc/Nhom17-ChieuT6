@@ -9,13 +9,13 @@ import { useCart } from '../../context/CartContext';
 const PLACEHOLDER_IMG = "https://via.placeholder.com/150?text=Elmich";
 
 const CartPage = () => {
-  const { cartItems, setCartItems } = useCart();
+  const { cartItems, removeFromCart, updateQuantity: contextUpdateQuantity } = useCart();
 
   // ================= HÀM XỬ LÝ ĐƯỜNG DẪN ẢNH =================
   const getImageUrl = (url) => {
     if (!url) return PLACEHOLDER_IMG;
     if (url.startsWith('http')) return url;
-    return `http://localhost:10000/public/images/${url}`; 
+    return `https://nhom17-chieut6.onrender.com/public/images/${url}`; 
   };
 
   // Hàm tính tổng tiền
@@ -25,19 +25,12 @@ const CartPage = () => {
 
   // Hàm xóa sản phẩm
   const removeItem = (id) => {
-    setCartItems(cartItems.filter(item => item.id !== id));
+    removeFromCart(id);
   };
 
   // Hàm tăng/giảm số lượng
-  const updateQuantity = (id, amount) => {
-    setCartItems(cartItems.map(item => {
-      if (item.id === id) {
-        const newQuantity = item.quantity + amount;
-        // Đảm bảo số lượng không bị tụt xuống dưới 1
-        return { ...item, quantity: newQuantity > 0 ? newQuantity : 1 };
-      }
-      return item;
-    }));
+  const updateQuantity = (id, currentQuantity, amount) => {
+    contextUpdateQuantity(id, currentQuantity + amount);
   };
 
   return (
@@ -100,14 +93,14 @@ const CartPage = () => {
                     <div className="col-span-1 md:col-span-2 flex justify-center">
                       <div className="flex items-center border border-gray-300 rounded-sm">
                         <button 
-                          onClick={() => updateQuantity(item.id, -1)}
+                          onClick={() => updateQuantity(item.id, item.quantity, -1)}
                           className="px-3 py-1.5 text-gray-500 hover:bg-gray-100 transition-colors cursor-pointer"
                         >−</button>
                         
                         <input type="text" value={item.quantity} readOnly className="w-10 text-center text-[14px] outline-none border-l border-r border-gray-300 py-1.5 bg-white" />
                         
                         <button 
-                          onClick={() => updateQuantity(item.id, 1)}
+                          onClick={() => updateQuantity(item.id, item.quantity, 1)}
                           className="px-3 py-1.5 text-gray-500 hover:bg-gray-100 transition-colors cursor-pointer"
                         >+</button>
                       </div>

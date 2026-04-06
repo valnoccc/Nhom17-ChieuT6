@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FaUserCircle, FaClipboardList, FaMapMarkerAlt, FaSignOutAlt, FaBox, FaTruck, FaCheckCircle, FaTimesCircle, FaSpinner } from 'react-icons/fa';
+import { FaUserCircle, FaClipboardList, FaMapMarkerAlt, FaSignOutAlt, FaBox, FaTruck, FaCheckCircle, FaTimesCircle, FaSpinner, FaHeart, FaKey } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
 import axios from 'axios';
@@ -59,11 +59,19 @@ const OrderHistoryPage = () => {
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // LẤY DỮ LIỆU USER TỪ LOCAL STORAGE
+  const localUser = JSON.parse(localStorage.getItem('user')) || {};
+  let displayAvatar = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+  if (localUser.avatar_url) {
+      const serverUrl = 'http://localhost:10000';
+      displayAvatar = localUser.avatar_url.startsWith('http') ? localUser.avatar_url : `${serverUrl}/public/images/${localUser.avatar_url}`;
+  }
+
   // HÀM XỬ LÝ LINK ẢNH CHUẨN MỰC TỪ SERVER
   const getImageUrl = (url) => {
     if (!url) return PLACEHOLDER_IMG;
     if (url.startsWith('http')) return url;
-    return `http://localhost:10000/public/images/${url}`; 
+    return `https://nhom17-chieut6.onrender.com/public/images/${url}`; 
   };
 
   // ================= GỌI API LẤY LỊCH SỬ ĐƠN HÀNG =================
@@ -72,7 +80,7 @@ const OrderHistoryPage = () => {
       try {
         setIsLoading(true);
         // Lưu ý: Thay đổi endpoint này cho đúng với API backend của bạn
-        const response = await axios.get("http://localhost:10000/api/orders");
+        const response = await axios.get("https://nhom17-chieut6.onrender.com/api/orders");
         
         if (response.data && response.data.success && response.data.data.length > 0) {
           // Format lại dữ liệu từ DB (nếu cần)
@@ -147,23 +155,27 @@ const OrderHistoryPage = () => {
           <div className="w-full lg:w-[280px] flex-shrink-0">
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden sticky top-24">
               <div className="p-5 flex items-center gap-4 border-b border-gray-100 bg-gray-50/50">
-                <FaUserCircle size={45} className="text-gray-300" />
+                <img src={displayAvatar} alt="avatar" className="w-12 h-12 rounded-full object-cover border border-gray-200" />
                 <div>
                   <p className="text-[13px] text-gray-500">Tài khoản của</p>
-                  <p className="text-[16px] font-bold text-gray-800">Khách hàng</p>
+                  <p className="text-[16px] font-bold text-gray-800">{localUser.full_name || localUser.name || 'Khách hàng'}</p>
                 </div>
               </div>
               <div className="p-2">
-                <Link to="#" className="flex items-center gap-3 px-4 py-3 text-[14px] text-gray-600 hover:bg-red-50 hover:text-[#ed1c24] rounded-lg transition-colors">
-                  <FaUserCircle size={18} /> Thông tin tài khoản
+                <Link to="/account/profile" className="flex items-center gap-3 px-4 py-3 text-[14px] text-gray-600 hover:bg-red-50 hover:text-[#ed1c24] rounded-lg transition-colors">
+                  <FaUserCircle size={18} /> Thông tin cá nhân
                 </Link>
-                <Link to="#" className="flex items-center gap-3 px-4 py-3 text-[14px] font-bold text-[#ed1c24] bg-red-50 rounded-lg transition-colors">
+                <Link to="/account/orders" className="flex items-center gap-3 px-4 py-3 text-[14px] font-bold text-[#ed1c24] bg-red-50 rounded-lg transition-colors">
                   <FaClipboardList size={18} /> Lịch sử đơn hàng
                 </Link>
-                <Link to="#" className="flex items-center gap-3 px-4 py-3 text-[14px] text-gray-600 hover:bg-red-50 hover:text-[#ed1c24] rounded-lg transition-colors">
-                  <FaMapMarkerAlt size={18} /> Sổ địa chỉ
+                <Link to="/account/password" className="flex items-center gap-3 px-4 py-3 text-[14px] text-gray-600 hover:bg-red-50 hover:text-[#ed1c24] rounded-lg transition-colors">
+                  <FaKey size={18} /> Đổi mật khẩu
                 </Link>
-                <button className="w-full flex items-center gap-3 px-4 py-3 text-[14px] text-gray-600 hover:bg-red-50 hover:text-[#ed1c24] rounded-lg transition-colors mt-4 border-t border-gray-100">
+                <div className="h-[1px] bg-gray-100 my-2 mx-4"></div>
+                <button 
+                  onClick={() => { localStorage.removeItem('user'); window.location.href = '/login'; }}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-[14px] text-red-600 font-bold hover:bg-red-50 rounded-lg transition-colors"
+                >
                   <FaSignOutAlt size={18} /> Đăng xuất
                 </button>
               </div>

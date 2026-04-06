@@ -18,6 +18,8 @@ import CartPage from './pages/Cart/CartPage';
 import CheckoutPage from './pages/Checkout/CheckoutPage';
 import ProductListPage from './pages/ProductList/ProductListPage';
 import OrderHistoryPage from './pages/Account/OrderHistoryPage'; 
+import ProfilePage from './pages/Account/ProfilePage';
+import ChangePasswordPage from './pages/Account/ChangePasswordPage';
 import ProductDetailPage from './pages/ProductDetail/ProductDetailPage';
 import PostDetailPage from './pages/Blog/PostDetailPage';
 // Component con để xử lý hiệu ứng chuyển động khi đổi URL
@@ -33,6 +35,8 @@ const AnimatedRoutes = () => {
         <Route path="/cart" element={<CartPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/products" element={<ProductListPage />} />
+        <Route path="/account/profile" element={<ProfilePage />} />
+        <Route path="/account/password" element={<ChangePasswordPage />} />
         <Route path="/account/orders" element={<OrderHistoryPage />} />
         <Route path="/product/:id" element={<ProductDetailPage />} />
         <Route path="/blog/:id" element={<PostDetailPage />} />

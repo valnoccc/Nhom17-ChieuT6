@@ -1,3 +1,35 @@
+const getCart = (req, res) => {
+    const db = req.app.get('db');
+    const { user_id } = req.params;
+
+    const findCartSql = "SELECT id FROM Carts WHERE user_id = ?";
+    db.query(findCartSql, [user_id], (err, cartResults) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (cartResults.length === 0) return res.json({ success: true, data: [] });
+
+        const cart_id = cartResults[0].id;
+        const getItemsSql = `
+            SELECT ci.product_id, ci.quantity, p.name, p.price, p.thumbnail_url 
+            FROM Cart_Items ci 
+            JOIN Products p ON ci.product_id = p.id 
+            WHERE ci.cart_id = ?
+        `;
+        db.query(getItemsSql, [cart_id], (err, items) => {
+            if (err) return res.status(500).json({ error: err.message });
+            // Trả về dữ liệu được map giống cấu trúc cartItems trên frontend
+            const formattedItems = items.map(item => ({
+                id: item.product_id,
+                name: item.name,
+                price: item.price,
+                thumbnail_url: item.thumbnail_url,
+                quantity: item.quantity,
+                cart_id: cart_id
+            }));
+            res.json({ success: true, cart_id: cart_id, data: formattedItems });
+        });
+    });
+};
+
 const addToCart = (req, res) => {
     const db = req.app.get('db');
     const { user_id, product_id, quantity } = req.body;
@@ -67,4 +99,4 @@ const removeCartItem = (req, res) => {
     });
 };
 
-module.exports = { addToCart, updateCartItem, removeCartItem };
+module.exports = { getCart, addToCart, updateCartItem, removeCartItem };

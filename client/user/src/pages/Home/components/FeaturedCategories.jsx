@@ -39,14 +39,14 @@ const FeaturedCategories = () => {
   const getImageUrl = (url) => {
     if (!url) return PLACEHOLDER_IMG;
     if (url.startsWith('http')) return url;
-    return `http://localhost:10000/public/images/${url}`;
+    return `https://nhom17-chieut6.onrender.com/public/images/${url}`;
   };
 
   useEffect(() => {
     const fetchTopProducts = async () => {
       try {
         setLoadingProducts(true);
-        const response = await axios.get("http://localhost:10000/api/products?page=1&limit=5");
+        const response = await axios.get("https://nhom17-chieut6.onrender.com/api/products?limit=5");
         if (response.data && response.data.success) {
           setTopProducts(response.data.data);
         }

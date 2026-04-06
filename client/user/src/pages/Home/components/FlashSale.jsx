@@ -14,15 +14,23 @@ const FlashSale = () => {
 
   // HÀM XỬ LÝ ẢNH
   const getImageUrl = (url) => {
-    const imgUrl = API.IMAGE_URL(url);
-    console.log("Link ảnh kiểm tra:", imgUrl);
-    return imgUrl;
+    if (!url) return PLACEHOLDER_IMG;
+    if (url.startsWith('http')) return url;
+
+    // Lacoste kiểm tra xem folder ảnh của bạn tên là gì nhé (vd: images hay product-img)
+    const finalUrl = `http://localhost:10000/public/images/${url}`;
+
+    // Dòng này để bạn copy link dán lên trình duyệt test xem ảnh có tồn tại không
+    console.log("Link ảnh kiểm tra:", finalUrl);
+
+    return finalUrl;
+  };
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${API.PRODUCTS}?page=1&limit=5`);
+        const response = await axios.get("http://localhost:10000/api/products?page=1&limit=5");
         if (response.data && response.data.success) {
           setProducts(response.data.data);
         }
