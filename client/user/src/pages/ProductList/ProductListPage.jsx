@@ -26,6 +26,7 @@ const ProductListPage = () => {
   const searchQuery = searchParams.get("search") || "";
 
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [filters, setFilters] = useState({ categories: initialCategory ? [initialCategory] : [], minPrice: 0, maxPrice: Infinity, rating: 0 });
   const [activeSort, setActiveSort] = useState('Phổ biến');
   const [currentPage, setCurrentPage] = useState(1);
@@ -38,39 +39,56 @@ const ProductListPage = () => {
     const fetchAllProducts = async () => {
       try {
         setIsLoading(true);
-        // Gọi API lấy danh sách thực tế
+
+        // Gọi API lấy danh sách thực tế từ server nhóm 17
         const response = await axios.get("https://nhom17-chieut6.onrender.com/api/products?limit=100");
 
         if (response.data && response.data.success) {
           const formattedData = response.data.data.map(item => {
-            // Logic phân loại danh mục giữ nguyên
-            let catName = "Dụng cụ nhà bếp";
-            const nameLower = (item.name || "").toLowerCase();
-            if (nameLower.includes('tủ lạnh')) catName = 'Tủ lạnh';
-            else if (nameLower.includes('giặt')) catName = 'Máy giặt';
-            else if (nameLower.includes('quạt')) catName = 'Quạt';
-            // ... (giữ nguyên các điều kiện if của bạn)
+            // Sử dụng trực tiếp category_name trả về từ database (SQL JOIN)
+            // Nếu không có tên danh mục thì mặc định là "Dụng cụ nhà bếp" hoặc "Khác"
+            const catName = item.category_name || "Dụng cụ nhà bếp";
 
             return {
               ...item,
-              image: item.thumbnail_url?.startsWith('http') ? item.thumbnail_url : `https://nhom17-chieut6.onrender.com/public/images/${item.thumbnail_url}`,
-              category: catName,
+              // Xử lý đường dẫn ảnh động hoặc ảnh mặc định
+              image: item.thumbnail_url?.startsWith('http')
+                ? item.thumbnail_url
+                : `https://nhom17-chieut6.onrender.com/public/images/${item.thumbnail_url}`,
+
+              category: catName, // Gán danh mục chuẩn để bộ lọc Sidebar hoạt động đúng
               price: Number(item.price || 0),
               oldPrice: item.old_price ? Number(item.old_price) : null,
               rating: item.rating || 5
             };
           });
 
-          // CHỈ SET DATA THẬT - XÓA BỎ PHẦN DUPLICATED VÀ TEST_1, TEST_2...
+          // Cập nhật danh sách sản phẩm thực tế vào state
           setProducts(formattedData);
         }
       } catch (error) {
-        console.error("Lỗi API:", error);
+        console.error("❌ Lỗi API khi lấy danh sách sản phẩm:", error);
       } finally {
         setIsLoading(false);
       }
     };
+
     fetchAllProducts();
+  }, []);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        // const response = await axios.get("https://nhom17-chieut6.onrender.com/api/categories");
+        const response = await axios.get("http://localhost:10000/api/categories");
+        if (response.data && response.data.success) {
+          setCategories(response.data.data);
+        }
+      } catch (error) {
+        console.error("Lỗi lấy danh mục:", error);
+      }
+    };
+    fetchCategories();
   }, []);
 
   // Tự động reset trang về 1 khi từ khóa tìm kiếm thay đổi
@@ -131,7 +149,11 @@ const ProductListPage = () => {
 
       <main className="flex-grow max-w-[1536px] mx-auto px-4 md:px-8 lg:px-12 py-8 w-full flex flex-col lg:flex-row gap-6 lg:gap-8">
         <div className="w-full lg:w-[280px] flex-shrink-0">
-          <SidebarFilter onFilterChange={handleFilterChange} initialCategory={initialCategory} />
+          <SidebarFilter
+            onFilterChange={handleFilterChange}
+            initialCategory={initialCategory}
+            categoriesList={categories}
+          />
         </div>
 
         <div className="flex-1 flex flex-col">

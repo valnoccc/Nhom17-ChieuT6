@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { FaStar, FaFilter } from 'react-icons/fa';
 
-const SidebarFilter = ({ onFilterChange = () => {}, initialCategory = null }) => {
+// Thêm categoriesList vào phần nhận props
+const SidebarFilter = ({ onFilterChange = () => { }, initialCategory = null, categoriesList = [] }) => {
   const [selectedCategories, setSelectedCategories] = useState(initialCategory ? [initialCategory] : []);
   const [priceRange, setPriceRange] = useState({ min: 0, max: Infinity });
   const [selectedRating, setSelectedRating] = useState(0);
 
-  const categories = ["Tủ lạnh", "Máy giặt", "Quạt", "Máy lọc không khí", "Máy xay sinh tố", "Dụng cụ nhà bếp"];
 
   useEffect(() => {
     if (initialCategory) {
@@ -36,10 +36,17 @@ const SidebarFilter = ({ onFilterChange = () => {}, initialCategory = null }) =>
       <div className="mb-6">
         <h3 className="text-[15px] font-bold mb-4">Danh mục</h3>
         <div className="space-y-3">
-          {categories.map((cat, i) => (
-            <label key={i} className="flex items-center gap-3 cursor-pointer group">
-              <input type="checkbox" checked={selectedCategories.includes(cat)} onChange={() => handleCategoryChange(cat)} className="w-4 h-4 accent-[#ed1c24]" />
-              <span className="text-[14px] text-gray-600 group-hover:text-[#ed1c24]">{cat}</span>
+          {categoriesList.map((cat) => (
+            <label key={cat.id} className="flex items-center gap-3 cursor-pointer group">
+              <input
+                type="checkbox"
+                checked={selectedCategories.includes(cat.name)} // So sánh với cat.name
+                onChange={() => handleCategoryChange(cat.name)}
+                className="w-4 h-4 accent-[#ed1c24]"
+              />
+              <span className="text-[14px] text-gray-600 group-hover:text-[#ed1c24]">
+                {cat.name}
+              </span>
             </label>
           ))}
         </div>
@@ -57,7 +64,7 @@ const SidebarFilter = ({ onFilterChange = () => {}, initialCategory = null }) =>
         </div>
       </div>
 
-      <button onClick={() => {setSelectedCategories([]); setPriceRange({min:0, max: Infinity});}} className="w-full py-2 bg-gray-100 text-gray-600 rounded font-bold text-[13px] hover:bg-gray-200 transition-colors">XÓA TẤT CẢ</button>
+      <button onClick={() => { setSelectedCategories([]); setPriceRange({ min: 0, max: Infinity }); }} className="w-full py-2 bg-gray-100 text-gray-600 rounded font-bold text-[13px] hover:bg-gray-200 transition-colors">XÓA TẤT CẢ</button>
     </div>
   );
 };

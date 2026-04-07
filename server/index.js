@@ -11,6 +11,7 @@ const adminRoute = require('./routes/admin/admin.route');
 const productRoute = require('./routes/product/product.router');
 const cartRoute = require('./routes/cart/cart.route');
 const orderRoute = require('./routes/order/order.route');
+const categoryRoutes = require('./routes/category/category.route');
 
 // 2. MIDDLEWARES
 app.use(cors());
@@ -54,6 +55,7 @@ app.get('/', (req, res) => {
 // 4. SỬ DỤNG ROUTES
 app.use('/api/users', userRoute);
 app.use('/api/products', productRoute);
+app.use('/api/categories', categoryRoutes);
 app.use('/api/cart', cartRoute);
 app.use('/api/orders', orderRoute);
 app.use('/', adminRoute);
