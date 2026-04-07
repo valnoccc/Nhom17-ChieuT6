@@ -79,8 +79,7 @@ const ProductListPage = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        // const response = await axios.get("https://nhom17-chieut6.onrender.com/api/categories");
-        const response = await axios.get("http://localhost:10000/api/categories");
+        const response = await axios.get("https://nhom17-chieut6.onrender.com/api/categories");
         if (response.data && response.data.success) {
           setCategories(response.data.data);
         }
