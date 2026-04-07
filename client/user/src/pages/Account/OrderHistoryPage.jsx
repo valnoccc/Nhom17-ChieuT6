@@ -54,7 +54,7 @@ const TABS = ['TẤT CẢ', 'CHỜ XÁC NHẬN', 'ĐANG GIAO', 'ĐÃ GIAO', 'Đ�
 
 const OrderHistoryPage = () => {
   const [activeTab, setActiveTab] = useState('TẤT CẢ');
-  
+
   // ================= STATE DỮ LIỆU TỪ API =================
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -63,15 +63,15 @@ const OrderHistoryPage = () => {
   const localUser = JSON.parse(localStorage.getItem('user')) || {};
   let displayAvatar = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
   if (localUser.avatar_url) {
-      const serverUrl = 'http://localhost:10000';
-      displayAvatar = localUser.avatar_url.startsWith('http') ? localUser.avatar_url : `${serverUrl}/public/images/${localUser.avatar_url}`;
+    const serverUrl = 'https://nhom17-chieut6.onrender.com';
+    displayAvatar = localUser.avatar_url.startsWith('http') ? localUser.avatar_url : `${serverUrl}/public/images/${localUser.avatar_url}`;
   }
 
   // HÀM XỬ LÝ LINK ẢNH CHUẨN MỰC TỪ SERVER
   const getImageUrl = (url) => {
     if (!url) return PLACEHOLDER_IMG;
     if (url.startsWith('http')) return url;
-    return `https://nhom17-chieut6.onrender.com/public/images/${url}`; 
+    return `https://nhom17-chieut6.onrender.com/public/images/${url}`;
   };
 
   // ================= GỌI API LẤY LỊCH SỬ ĐƠN HÀNG =================
@@ -81,7 +81,7 @@ const OrderHistoryPage = () => {
         setIsLoading(true);
         // Lưu ý: Thay đổi endpoint này cho đúng với API backend của bạn
         const response = await axios.get("https://nhom17-chieut6.onrender.com/api/orders");
-        
+
         if (response.data && response.data.success && response.data.data.length > 0) {
           // Format lại dữ liệu từ DB (nếu cần)
           const formattedOrders = response.data.data.map(order => ({
@@ -139,7 +139,7 @@ const OrderHistoryPage = () => {
     <PageWrapper>
       <div className="min-h-screen bg-[#f5f5f5] font-sans flex flex-col">
         <Header />
-        
+
         {/* Breadcrumb */}
         <div className="bg-white py-3 border-b border-gray-200 shadow-sm">
           <div className="max-w-[1250px] mx-auto px-4 md:px-8 text-[13px] text-gray-500 flex items-center gap-2">
@@ -150,7 +150,7 @@ const OrderHistoryPage = () => {
         </div>
 
         <main className="flex-grow max-w-[1250px] mx-auto px-4 md:px-8 py-8 w-full flex flex-col lg:flex-row gap-8">
-          
+
           {/* ================= SIDEBAR TÀI KHOẢN (25%) ================= */}
           <div className="w-full lg:w-[280px] flex-shrink-0">
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden sticky top-24">
@@ -172,7 +172,7 @@ const OrderHistoryPage = () => {
                   <FaKey size={18} /> Đổi mật khẩu
                 </Link>
                 <div className="h-[1px] bg-gray-100 my-2 mx-4"></div>
-                <button 
+                <button
                   onClick={() => { localStorage.removeItem('user'); window.location.href = '/login'; }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-[14px] text-red-600 font-bold hover:bg-red-50 rounded-lg transition-colors"
                 >
@@ -184,7 +184,7 @@ const OrderHistoryPage = () => {
 
           {/* ================= NỘI DUNG ĐƠN HÀNG (75%) ================= */}
           <div className="flex-1 flex flex-col gap-6">
-            
+
             <h1 className="text-[22px] font-bold text-gray-800 hidden lg:block">Lịch sử đơn hàng</h1>
 
             {/* THANH TABS */}
@@ -205,10 +205,10 @@ const OrderHistoryPage = () => {
 
             {/* DANH SÁCH ĐƠN HÀNG */}
             {isLoading ? (
-               <div className="bg-white rounded-xl shadow-sm border border-gray-100 py-20 flex flex-col items-center justify-center">
-                 <FaSpinner className="animate-spin text-[#ed1c24] text-4xl mb-4" />
-                 <p className="text-gray-500 font-medium">Đang tải dữ liệu đơn hàng...</p>
-               </div>
+              <div className="bg-white rounded-xl shadow-sm border border-gray-100 py-20 flex flex-col items-center justify-center">
+                <FaSpinner className="animate-spin text-[#ed1c24] text-4xl mb-4" />
+                <p className="text-gray-500 font-medium">Đang tải dữ liệu đơn hàng...</p>
+              </div>
             ) : filteredOrders.length === 0 ? (
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 py-20 flex flex-col items-center justify-center">
                 <img src="https://cdn-icons-png.flaticon.com/512/743/743131.png" alt="Empty" className="w-24 h-24 mb-4 opacity-30 grayscale" />
@@ -218,7 +218,7 @@ const OrderHistoryPage = () => {
               <div className="space-y-4">
                 {filteredOrders.map(order => (
                   <div key={order.id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 lg:p-6 transition-shadow hover:shadow-md">
-                    
+
                     {/* Header Đơn hàng */}
                     <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-gray-100 pb-4 mb-4 gap-2">
                       <div className="flex flex-wrap items-center gap-4 text-[13px]">
@@ -280,7 +280,7 @@ const OrderHistoryPage = () => {
 
           </div>
         </main>
-        
+
         <Footer />
       </div>
     </PageWrapper>

@@ -44,12 +44,36 @@ const ProductDetailPage = () => {
     const fetchProductDetail = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`https://nhom17-chieut6.onrender.com/api/products/${id}`);
 
-        // Lấy đúng data từ Object API trả về
-        if (response.data && response.data.success) {
-          const productData = response.data.data;
-          setProduct(productData);
+        // Xử lý id ảo nếu id từ ProductListPage là dạng _clone_ hoặc test_
+        let realId = id;
+        if (id && id.includes('_clone_')) {
+          realId = id.split('_clone_')[0];
+        }
+
+        if (id && id.startsWith('test_')) {
+          // Tạo dữ liệu giả cho sản phẩm test
+          const testProducts = {
+            'test_1': { id: 'test_1', name: 'Chảo chống dính mini 16cm (Mẫu Test)', price: 150000, category_id: 'Dụng cụ nhà bếp', description: 'Trải nghiệm mẫu test chảo mini...', thumbnail_url: '' },
+            'test_2': { id: 'test_2', name: 'Bình nước thể thao 500ml (Mẫu Test)', price: 99000, category_id: 'Dụng cụ nhà bếp', description: 'Bình nước tiện dụng...', thumbnail_url: '' },
+            'test_3': { id: 'test_3', name: 'Quạt mini để bàn cầm tay (Mẫu Test)', price: 299000, category_id: 'Quạt', description: 'Quạt mini siêu mát cho mùa hè', thumbnail_url: '' }
+          };
+          const mockData = testProducts[id];
+          if (mockData) {
+            setProduct({ ...mockData, stock_quantity: 100 });
+            setActiveImage('');
+            setLoading(false);
+            return;
+          }
+        }
+
+        const response = await axios.get(`https://nhom17-chieut6.onrender.com/api/products/${realId}`);
+
+        // Lấy đúng data từ Object API trả về (API remote có thể không trả về field success)
+        if (response.data && (response.data.success || response.data.data)) {
+          const productData = response.data.data || response.data;
+          // Ghi đè lại id gốc từ URL để giỏ hàng không bị lỗi
+          setProduct({ ...productData, id: id });
           // Dùng đúng cột thumbnail_url từ TiDB
           setActiveImage(productData.thumbnail_url);
         } else {

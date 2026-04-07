@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom"; 
+import { Link, useNavigate } from "react-router-dom";
 import {
   FaSearch,
   FaShoppingCart,
@@ -17,9 +17,9 @@ import {
 import { useCart } from "../../context/CartContext";
 
 const Header = () => {
-  const { cartItems } = useCart(); 
+  const { cartItems } = useCart();
   const totalItems = cartItems.reduce((total, item) => total + item.quantity, 0);
-  
+
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const userMenuRef = useRef(null);
@@ -34,7 +34,7 @@ const Header = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-  
+
   // ================= STATE & HÀM TÌM KIẾM =================
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
@@ -44,7 +44,7 @@ const Header = () => {
     if (searchQuery.trim()) {
       // Đẩy người dùng sang trang danh sách sản phẩm kèm từ khóa tìm kiếm trên URL
       navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
-      setIsMobileMenuOpen(false); 
+      setIsMobileMenuOpen(false);
     }
   };
 
@@ -53,7 +53,7 @@ const Header = () => {
     navigate(`/products?search=${encodeURIComponent(keyword)}`);
   };
   // =======================================================
-  
+
   // KIỂM TRA ĐĂNG NHẬP
   const user = JSON.parse(localStorage.getItem('user'));
 
@@ -75,9 +75,9 @@ const Header = () => {
       {/* ⚪ 2. MAIN HEADER */}
       <div className="border-b border-gray-100">
         <div className="max-w-[1440px] mx-auto px-4 py-4 flex items-center justify-between gap-4">
-          
+
           {/* NÚT MENU MOBILE */}
-          <button 
+          <button
             className="md:hidden text-[#ed1c24] text-[24px]"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
@@ -87,7 +87,7 @@ const Header = () => {
           {/* LEFT: LOGO */}
           <Link to="/" className="flex-shrink-0">
             <div className="flex flex-col items-start">
-               <h1 className="text-[36px] md:text-[42px] font-black text-[#ed1c24] italic tracking-tighter leading-none hover:opacity-80 transition-opacity">
+              <h1 className="text-[36px] md:text-[42px] font-black text-[#ed1c24] italic tracking-tighter leading-none hover:opacity-80 transition-opacity">
                 elmich
               </h1>
             </div>
@@ -107,13 +107,13 @@ const Header = () => {
                 <FaSearch size={18} />
               </button>
             </form>
-            
+
             {/* Top Tìm Kiếm - Cập nhật cho khớp Điện máy */}
             <div className="flex items-center gap-2 mt-2 text-[12px]">
               <span className="text-gray-500 font-bold">Top Tìm Kiếm:</span>
               {["Tủ lạnh", "Máy giặt", "Máy xay"].map((item, i) => (
-                <span 
-                  key={i} 
+                <span
+                  key={i}
                   onClick={() => handleQuickSearch(item)}
                   className="bg-[#d57171] text-white px-3 py-0.5 rounded-full cursor-pointer hover:bg-red-600 transition-colors shadow-sm"
                 >
@@ -143,16 +143,16 @@ const Header = () => {
 
             {/* TÀI KHOẢN & DROPDOWN */}
             <div className="relative" ref={userMenuRef}>
-              <div 
+              <div
                 className="flex items-center gap-2 group cursor-pointer"
                 onClick={() => user ? setIsUserMenuOpen(!isUserMenuOpen) : null}
               >
                 <div className="w-9 h-9 border border-gray-200 rounded-full flex items-center justify-center group-hover:border-[#ed1c24] group-hover:bg-red-50 transition-colors overflow-hidden bg-white">
                   {user && user.avatar_url ? (
-                    <img 
-                      src={user.avatar_url.startsWith('http') ? user.avatar_url : `http://localhost:10000/public/images/${user.avatar_url}`} 
-                      alt="avatar" 
-                      className="w-full h-full object-cover" 
+                    <img
+                      src={user.avatar_url.startsWith('http') ? user.avatar_url : `https://nhom17-chieut6.onrender.com/public/images/${user.avatar_url}`}
+                      alt="avatar"
+                      className="w-full h-full object-cover"
                     />
                   ) : (
                     <FaRegUser size={18} className="text-gray-700 group-hover:text-[#ed1c24]" />
@@ -175,7 +175,7 @@ const Header = () => {
 
               {/* DROPDOWN MENU */}
               {user && (
-                <div 
+                <div
                   className={`absolute top-full right-0 mt-3 w-[230px] bg-white rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-100 p-2 z-[999] transition-all duration-300 origin-top-right ${isUserMenuOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}
                 >
                   <Link to="/account/profile" onClick={() => setIsUserMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-[14px] text-gray-700 hover:bg-red-50 hover:text-[#ed1c24] rounded-lg transition-colors font-medium">
@@ -188,7 +188,7 @@ const Header = () => {
                     <FaKey size={16} /> Đổi mật khẩu
                   </Link>
                   <div className="h-[1px] bg-gray-100 my-2 mx-2"></div>
-                  <button 
+                  <button
                     onClick={() => { localStorage.removeItem('user'); window.location.reload(); }}
                     className="flex w-full items-center gap-3 px-4 py-2.5 text-[14px] text-red-600 hover:bg-red-50 font-bold rounded-lg transition-colors"
                   >
@@ -211,28 +211,28 @@ const Header = () => {
             </Link>
           </div>
         </div>
-        
+
         {/* THANH TÌM KIẾM CHO MOBILE */}
         <div className="md:hidden px-4 pb-4">
-            <form onSubmit={handleSearch} className="flex border border-[#ed1c24] rounded-full overflow-hidden h-[40px] shadow-sm focus-within:ring-2 focus-within:ring-red-100">
-                <input 
-                  type="text" 
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Tìm kiếm..." 
-                  className="flex-1 px-4 text-[14px] outline-none" 
-                />
-                <button type="submit" className="bg-[#ed1c24] text-white px-5 active:bg-red-800 transition-colors">
-                  <FaSearch />
-                </button>
-            </form>
+          <form onSubmit={handleSearch} className="flex border border-[#ed1c24] rounded-full overflow-hidden h-[40px] shadow-sm focus-within:ring-2 focus-within:ring-red-100">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Tìm kiếm..."
+              className="flex-1 px-4 text-[14px] outline-none"
+            />
+            <button type="submit" className="bg-[#ed1c24] text-white px-5 active:bg-red-800 transition-colors">
+              <FaSearch />
+            </button>
+          </form>
         </div>
       </div>
 
       {/* 🔴 3. NAVBAR */}
       <nav className={`bg-[#ed1c24] ${isMobileMenuOpen ? 'block absolute w-full shadow-lg z-40' : 'hidden'} md:block`}>
         <div className="max-w-[1440px] mx-auto flex flex-col md:flex-row">
-          
+
           <Link to="/products" className="bg-[#c8161e] text-white px-6 py-3 flex items-center gap-3 font-bold text-[14px] hover:bg-black transition-colors shadow-inner">
             <FaBars /> TẤT CẢ SẢN PHẨM
           </Link>

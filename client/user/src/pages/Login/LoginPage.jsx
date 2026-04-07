@@ -13,7 +13,7 @@ const LoginPage = () => {
     username: '', // Dùng chung cho email hoặc số điện thoại
     password: ''
   });
-  
+
   // 2. Quản lý lỗi
   const [errors, setErrors] = useState({});
   const navigate = useNavigate(); // Dùng để chuyển trang sau khi đăng nhập thành công
@@ -30,36 +30,36 @@ const LoginPage = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setErrors({});
-    
+
     if (!formData.username.trim() || !formData.password) {
-       toast.error("Vui lòng nhập Email và Mật khẩu!");
-       return;
+      toast.error("Vui lòng nhập Email và Mật khẩu!");
+      return;
     }
-    
+
     try {
-        const res = await axios.post('http://localhost:10000/api/users/login', {
-            email: formData.username,
-            password: formData.password
-        });
-        
-        if (res.data.success) {
-            toast.success("🚀 Đăng nhập thành công!");
-            localStorage.setItem('user', JSON.stringify({
-                 id: res.data.user.id,
-                 username: res.data.user.email,
-                 name: res.data.user.full_name || res.data.user.email.split('@')[0],
-                 full_name: res.data.user.full_name,
-                 email: res.data.user.email,
-                 phone: res.data.user.phone,
-                 avatar_url: res.data.user.avatar_url
-            }));
-            localStorage.setItem('token', res.data.token);
-            setTimeout(() => {
-                navigate('/');
-            }, 1000);
-        }
+      const res = await axios.post('https://nhom17-chieut6.onrender.com/api/users/login', {
+        email: formData.username,
+        password: formData.password
+      });
+
+      if (res.data.success) {
+        toast.success("🚀 Đăng nhập thành công!");
+        localStorage.setItem('user', JSON.stringify({
+          id: res.data.user.id,
+          username: res.data.user.email,
+          name: res.data.user.full_name || res.data.user.email.split('@')[0],
+          full_name: res.data.user.full_name,
+          email: res.data.user.email,
+          phone: res.data.user.phone,
+          avatar_url: res.data.user.avatar_url
+        }));
+        localStorage.setItem('token', res.data.token);
+        setTimeout(() => {
+          navigate('/');
+        }, 1000);
+      }
     } catch (err) {
-        toast.error(err.response?.data?.message || "⚠️ Vui lòng kiểm tra lại thông tin đăng nhập!");
+      toast.error(err.response?.data?.message || "⚠️ Vui lòng kiểm tra lại thông tin đăng nhập!");
     }
   };
 
@@ -88,7 +88,7 @@ const LoginPage = () => {
 
             {/* FORM ĐĂNG NHẬP */}
             <form onSubmit={handleLogin} className="flex flex-col gap-4">
-              
+
               <div>
                 <input
                   type="text"

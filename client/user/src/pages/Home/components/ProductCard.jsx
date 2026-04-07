@@ -19,13 +19,13 @@ const ProductCard = ({ product }) => {
 
   return (
     <div className="bg-white rounded-xl shadow-sm hover:shadow-md border border-[#ebebeb] transition-all duration-300 group flex flex-col h-full overflow-hidden relative p-4">
-      
+
       {/* Ảnh sản phẩm */}
       <Link to={`/product/${product.id}`} className="w-full h-[180px] mb-4 flex items-center justify-center bg-gray-50 rounded-lg overflow-hidden">
-        <img 
-          src={product.image} 
-          alt={product.name} 
-          className="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500 p-2" 
+        <img
+          src={product.image}
+          alt={product.name}
+          className="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500 p-2"
         />
       </Link>
 
@@ -55,8 +55,8 @@ const ProductCard = ({ product }) => {
               </span>
             )}
           </div>
-          
-          <button 
+
+          <button
             onClick={handleAddToCart}
             className="bg-[#e30019] text-white w-9 h-9 rounded-full flex items-center justify-center hover:bg-red-800 transform hover:scale-110 active:scale-95 transition-all flex-shrink-0"
           >
