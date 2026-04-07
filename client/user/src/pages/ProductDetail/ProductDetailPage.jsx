@@ -40,54 +40,44 @@ const ProductDetailPage = () => {
   };
 
   // 1. GỌI API LẤY CHI TIẾT SẢN PHẨM
+  // 1. GỌI API LẤY CHI TIẾT SẢN PHẨM THỰC TẾ
   useEffect(() => {
     const fetchProductDetail = async () => {
       try {
         setLoading(true);
 
-        // Xử lý id ảo nếu id từ ProductListPage là dạng _clone_ hoặc test_
-        let realId = id;
-        if (id && id.includes('_clone_')) {
-          realId = id.split('_clone_')[0];
-        }
+        // Gọi trực tiếp API với ID từ URL
+        const response = await axios.get(`https://nhom17-chieut6.onrender.com/api/products/${id}`);
 
-        if (id && id.startsWith('test_')) {
-          // Tạo dữ liệu giả cho sản phẩm test
-          const testProducts = {
-            'test_1': { id: 'test_1', name: 'Chảo chống dính mini 16cm (Mẫu Test)', price: 150000, category_id: 'Dụng cụ nhà bếp', description: 'Trải nghiệm mẫu test chảo mini...', thumbnail_url: '' },
-            'test_2': { id: 'test_2', name: 'Bình nước thể thao 500ml (Mẫu Test)', price: 99000, category_id: 'Dụng cụ nhà bếp', description: 'Bình nước tiện dụng...', thumbnail_url: '' },
-            'test_3': { id: 'test_3', name: 'Quạt mini để bàn cầm tay (Mẫu Test)', price: 299000, category_id: 'Quạt', description: 'Quạt mini siêu mát cho mùa hè', thumbnail_url: '' }
-          };
-          const mockData = testProducts[id];
-          if (mockData) {
-            setProduct({ ...mockData, stock_quantity: 100 });
-            setActiveImage('');
-            setLoading(false);
-            return;
-          }
-        }
+        //test trên local
+        //const response = await axios.get(`http://localhost:10000/api/products/${id}`);
 
-        const response = await axios.get(`https://nhom17-chieut6.onrender.com/api/products/${realId}`);
+        // Kiểm tra dữ liệu trả về từ server
+        if (response.data && response.data.success) {
+          const productData = response.data.data;
 
-        // Lấy đúng data từ Object API trả về (API remote có thể không trả về field success)
-        if (response.data && (response.data.success || response.data.data)) {
-          const productData = response.data.data || response.data;
-          // Ghi đè lại id gốc từ URL để giỏ hàng không bị lỗi
-          setProduct({ ...productData, id: id });
-          // Dùng đúng cột thumbnail_url từ TiDB
-          setActiveImage(productData.thumbnail_url);
+          setProduct(productData);
+
+          // Ưu tiên hiển thị ảnh đầu tiên từ mảng ảnh chi tiết, nếu không có thì dùng ảnh đại diện
+          const defaultImg = (productData.all_images && productData.all_images.length > 0)
+            ? productData.all_images[0]
+            : productData.thumbnail_url;
+
+          setActiveImage(defaultImg);
         } else {
-          toast.error("Không tìm thấy sản phẩm!");
+          toast.error(response.data.message || "Không tìm thấy sản phẩm!");
         }
       } catch (error) {
-        console.error("Lỗi khi lấy API:", error);
-        toast.error("Không thể tải thông tin sản phẩm!");
+        console.error("Lỗi khi lấy dữ liệu từ server:", error);
+        toast.error("Không thể kết nối đến máy chủ!");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProductDetail();
+    if (id) {
+      fetchProductDetail();
+    }
     window.scrollTo(0, 0);
   }, [id]);
 
@@ -142,6 +132,7 @@ const ProductDetailPage = () => {
 
             {/* HÌNH ẢNH */}
             <div className="w-full md:w-[45%] lg:w-[40%] flex flex-col gap-5">
+              {/* Khung ảnh lớn */}
               <div className="w-full aspect-square border border-gray-200 rounded-lg p-6 flex items-center justify-center bg-gray-50 relative">
                 <div className="absolute top-4 left-4 bg-white px-3 py-1.5 rounded-md shadow-sm border border-gray-100 flex items-center gap-1 z-10">
                   <img src={logoElmich} alt="elmich" className="h-4" />
@@ -151,15 +142,40 @@ const ProductDetailPage = () => {
                   src={getImageUrl(activeImage)}
                   alt={product.name}
                   onError={(e) => { e.target.onerror = null; e.target.src = PLACEHOLDER_IMG; }}
-                  className="w-full h-full object-contain mix-blend-multiply transition-all"
+                  className="w-full h-full object-contain mix-blend-multiply transition-all duration-300"
                 />
               </div>
-              <div className="flex gap-3 overflow-x-auto pb-2">
+
+              {/* Danh sách ảnh con (Thumbnails) */}
+              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                {/* Luôn hiển thị ảnh đại diện chính trước */}
                 <div
-                  className="w-20 h-20 lg:w-24 lg:h-24 border-2 rounded-lg p-1.5 cursor-pointer flex-shrink-0 border-[#e30019]"
+                  onClick={() => setActiveImage(product.thumbnail_url)}
+                  className={`w-20 h-20 lg:w-24 lg:h-24 border-2 rounded-lg p-1.5 cursor-pointer flex-shrink-0 transition-all ${activeImage === product.thumbnail_url ? 'border-[#e30019]' : 'border-gray-200 hover:border-gray-400'
+                    }`}
                 >
-                  <img src={getImageUrl(product.thumbnail_url)} alt="thumb" className="w-full h-full object-contain mix-blend-multiply" />
+                  <img src={getImageUrl(product.thumbnail_url)} alt="main-thumb" className="w-full h-full object-contain mix-blend-multiply" />
                 </div>
+
+                {/* Hiển thị các ảnh phụ từ mảng all_images */}
+                {product.all_images && product.all_images.map((img, index) => (
+                  // Tránh lặp lại nếu ảnh phụ trùng với thumbnail_url
+                  img !== product.thumbnail_url && (
+                    <div
+                      key={index}
+                      onClick={() => setActiveImage(img)}
+                      className={`w-20 h-20 lg:w-24 lg:h-24 border-2 rounded-lg p-1.5 cursor-pointer flex-shrink-0 transition-all ${activeImage === img ? 'border-[#e30019]' : 'border-gray-200 hover:border-gray-400'
+                        }`}
+                    >
+                      <img
+                        src={getImageUrl(img)}
+                        alt={`thumb-${index}`}
+                        className="w-full h-full object-contain mix-blend-multiply"
+                        onError={(e) => { e.target.style.display = 'none'; }} // Ẩn nếu ảnh lỗi
+                      />
+                    </div>
+                  )
+                ))}
               </div>
             </div>
 
