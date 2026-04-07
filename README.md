@@ -6,3 +6,10 @@
 * **Frontend:** HTML5, CSS3, JavaScript, React (Fetch API).
 * **Backend:** Node.js, Express.js.
 * **Database:** TiDB Cloud (MySQL Compatible).
+
+## Deloy
+URL Frontend user: https://feuser-nhom17.vercel.app/
+URL Frontend admin: https://feadmin-nhom17.vercel.app/
+URL Backend: https://nhom17-chieut6.onrender.com
+ 
+GitHub: https://github.com/valnoccc/Nhom17-ChieuT6
