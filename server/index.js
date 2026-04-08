@@ -62,6 +62,6 @@ app.use('/', adminRoute);
 // Cho phép truy cập thư mục public
 app.use('/public', express.static('public'));
 const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => {
-    console.log(`\n🚀 Server Nhóm 17 chạy tại: http://localhost:${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Server Nhóm 17 chạy tại cổng: ${PORT}`);
 });
