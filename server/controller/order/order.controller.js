@@ -156,6 +156,53 @@ const vnpayReturnIpn = async (req, res) => {
     }
 };
 
+const vnpayReturn = async (req, res) => {
+    let vnp_Params = req.query;
+    const isValid = verifyVnPayIpn(vnp_Params);
+    
+    // URL của frontend để redirect về
+    const frontendUrl = 'http://localhost:3000/account/orders';
+
+    if (isValid) {
+        let orderId = vnp_Params['vnp_TxnRef'];
+        let rspCode = vnp_Params['vnp_ResponseCode'];
+        const pool = req.app.get('db');
+        
+        try {
+            let status = (rspCode === '00') ? 'Paid' : 'Failed';
+            
+            // Lấy trạng thái hiện tại
+            const [orderCheck] = await pool.query("SELECT status FROM Orders WHERE id = ?", [orderId]);
+            if (orderCheck.length > 0 && orderCheck[0].status === 'Pending') {
+                // Chỉ cập nhật nếu đơn hàng vẫn đang Pending (tránh IPN cập nhật rồi)
+                await pool.query("UPDATE Orders SET status = ? WHERE id = ?", [status, orderId]);
+                
+                if (status === 'Paid') {
+                    const [orderResults] = await pool.query("SELECT user_id FROM Orders WHERE id = ?", [orderId]);
+                    if (orderResults.length > 0) {
+                        const user_id = orderResults[0].user_id;
+                        const [cartResults] = await pool.query("SELECT id FROM Carts WHERE user_id = ?", [user_id]);
+                        if (cartResults.length > 0) {
+                            const cart_id = cartResults[0].id;
+                            await pool.query("DELETE FROM Cart_Items WHERE cart_id = ?", [cart_id]);
+                        }
+                    }
+                }
+            }
+            
+            if (status === 'Paid') {
+                return res.redirect(`${frontendUrl}?vnpay=success`);
+            } else {
+                return res.redirect(`${frontendUrl}?vnpay=failed`);
+            }
+        } catch (e) {
+            console.error("Lỗi VNPay Return:", e);
+            return res.redirect(`${frontendUrl}?vnpay=error`);
+        }
+    } else {
+        return res.redirect(`${frontendUrl}?vnpay=checksum_failed`);
+    }
+};
 
 const getHistory = async (req, res) => {
     const userId = req.user.id;
@@ -231,4 +278,4 @@ const cancelOrder = async (req, res) => {
     }
 };
 
-module.exports = { checkout, createPaymentUrl, vnpayReturnIpn, getHistory, cancelOrder };
+module.exports = { checkout, createPaymentUrl, vnpayReturnIpn, vnpayReturn, getHistory, cancelOrder };

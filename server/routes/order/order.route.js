@@ -8,6 +8,7 @@ router.post('/checkout', orderController.checkout);
 // API Thanh toán
 router.post('/create_payment_url', orderController.createPaymentUrl);
 router.get('/vnpay_ipn', orderController.vnpayReturnIpn);
+router.get('/vnpay_return', orderController.vnpayReturn);
 
 // API Lịch sử & Hủy đơn
 router.get('/history', authenticateToken, orderController.getHistory);
