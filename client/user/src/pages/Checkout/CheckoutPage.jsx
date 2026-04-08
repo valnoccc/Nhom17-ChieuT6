@@ -4,10 +4,9 @@ import { FaUserCircle, FaChevronLeft, FaMoneyBillWave, FaTimes, FaSpinner } from
 import { useCart } from '../../context/CartContext';
 import { toast } from 'react-toastify';
 import PageWrapper from '../../components/layout/PageWrapper';
+import axios from 'axios';
 
-// IMPORT HÌNH ẢNH
-import logoElmich from "../../images/logo_elmich.png";
-import imgVnpay from "../../images/payment-1.png"; 
+// ================= DÙNG ĐƯỜNG DẪN PUBLIC =================
 
 // 1. ================= DỮ LIỆU VOUCHER =================
 const VOUCHERS = [
@@ -66,13 +65,13 @@ const LOCATION_DATA = {
 };
 
 const CheckoutPage = () => {
-  const { cartItems } = useCart();
+  const { cartItems, setCartItems } = useCart();
   const navigate = useNavigate(); // Khởi tạo hook chuyển trang
 
   const getImageUrl = (url) => {
     if (!url) return "https://via.placeholder.com/150?text=Elmich";
     if (url.startsWith('http')) return url;
-    return `https://nhom17-chieut6.onrender.com/public/images/${url}`; 
+    return url.startsWith('/images/') ? url : `/images/${url}`;
   };
   const [formData, setFormData] = useState({
     email: '', fullName: '', phone: '', address: '',
@@ -143,20 +142,51 @@ const CheckoutPage = () => {
     toast.info("Đã gỡ mã giảm giá!");
   };
 
-  // HÀM ĐẶT HÀNG KÈM HIỆU ỨNG LOADING
-  const handleOrder = (e) => {
+  // HÀM ĐẶT HÀNG 
+  const handleOrder = async (e) => {
     e.preventDefault();
     if (validateForm()) {
       setIsProcessing(true); // Bật hiệu ứng Loading
 
-      // Giả lập thời gian gửi dữ liệu lên server / gọi cổng thanh toán (2 giây)
-      setTimeout(() => {
-        setIsProcessing(false); // Tắt Loading
-        toast.success("🚀 Đặt hàng thành công!");
+      try {
+        const user = JSON.parse(localStorage.getItem('user'));
+        const userId = user && user.id ? user.id : 0;
         
-        // Chuyển hướng người dùng sang trang Lịch sử đơn hàng
-        navigate('/account/orders'); 
-      }, 2000);
+        const formattedItems = cartItems.map(item => {
+            let pid = 1;
+            const match = String(item.id).match(/\d+/);
+            if (match) pid = parseInt(match[0]);
+            else pid = item.id;
+            return {
+                product_id: pid,
+                quantity: item.quantity
+            };
+        });
+
+        const addressDetail = `${formData.address}, ${formData.ward}, ${formData.district}, ${formData.province}`;
+
+        const response = await axios.post("https://nhom17-chieut6.onrender.com/api/orders/checkout", {
+            user_id: userId,
+            shipping_address: addressDetail,
+            items: formattedItems
+        });
+
+        if (response.data.success) {
+            toast.success("🚀 Đặt hàng thành công!");
+            
+            // Clear frontend cart
+            setCartItems([]);
+            localStorage.removeItem('elmich_cart');
+            
+            // Chuyển hướng người dùng sang trang Lịch sử đơn hàng
+            navigate('/account/orders'); 
+        }
+      } catch (err) {
+         console.error(err);
+         toast.error(err.response?.data?.message || "Hệ thống gặp lỗi nội bộ khi xử lý thanh toán!");
+      } finally {
+         setIsProcessing(false);
+      }
 
     } else {
       toast.error("⚠️ Vui lòng kiểm tra lại các thông tin bị thiếu hoặc sai!");
@@ -172,7 +202,7 @@ const CheckoutPage = () => {
           <div className="flex-[6.5] p-6 lg:p-10 lg:pr-16">
             <div className="flex justify-center lg:justify-start mb-10">
               <Link to="/">
-                <img src={logoElmich} alt="Logo" className="h-16 object-contain" />
+                <img src="/images/logo_elmich.png" alt="Elmich Logo" className="h-10 cursor-pointer" />
               </Link>
             </div>
 
@@ -283,7 +313,7 @@ const CheckoutPage = () => {
                         <div className={`flex-shrink-0 w-[18px] h-[18px] rounded-full flex items-center justify-center ${formData.paymentMethod === 'VNPAY' ? 'border-[5px] border-[#338dbc]' : 'border border-gray-300 bg-white'}`}></div>
                         <span className="text-[14px] text-gray-700">Thanh toán online qua cổng VNPAY</span>
                       </div>
-                      <img src={imgVnpay} alt="vnpay" className="h-4 ml-2" />
+                      <img src="/images/payment-1.png" alt="vnpay" className="h-4 ml-2" />
                     </label>
 
                     <label className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors">

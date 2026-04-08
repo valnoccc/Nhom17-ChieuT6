@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import PageWrapper from '../Layout/PageWrapper';
 
-//const BASE_URL = 'http://localhost:10000';
+//const BASE_URL = 'https://nhom17-chieut6.onrender.com';
 const BASE_URL = 'https://nhom17-chieut6.onrender.com';
 
 function UserList() {
@@ -234,7 +234,7 @@ function UserList() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.id}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.full_name}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.email}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.phone || '—'}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.phone || 'â€”'}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <select
                       value={user.role}

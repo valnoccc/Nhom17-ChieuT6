@@ -1,14 +1,11 @@
 import React from "react";
-// ================= THÊM DÒNG NÀY =================
 import { Link } from "react-router-dom";
-// =================================================
 
-// IMPORT ẢNH 
-import imgToiChao from "../../../images/toi-chao-lan-dau.png";
+// ================= DÙNG ĐƯỜNG DẪN PUBLIC =================
 
 const sidePosts = [
   {
-    id: 2, // Mình đổi id thành 2,3,4,5 để tránh trùng với bài viết chính (id: 1)
+    id: 2, 
     title: "Chảo Chống Dính Bị Tróc Lớp Chống Dính Có An Toàn...",
     date: "29/12/2025",
     desc: "Nấu nướng là một nghệ thuật, và chiếc chảo chống dính là “cây cọ” đắc lực nhất của mọi đầu bếp gia đình. Tuy nhiên, sau m...",
@@ -52,11 +49,7 @@ const BlogSection = () => {
           {/* CỘT TRÁI - Bài viết chính (Gắn Link về /blog/1) */}
           <Link to="/blog/1" className="flex flex-col cursor-pointer group">
             <div className="relative overflow-hidden rounded-md mb-5 aspect-[16/10] bg-gray-100 shadow-sm">
-              <img 
-                src={imgToiChao} 
-                alt="Main post" 
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              />
+              <img src="/images/toi-chao-lan-dau.png" alt="Tôi chảo chống dính" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
               {/* Badge Ngày Tháng */}
               <div className="absolute top-0 left-0 bg-[#ed1c24] text-white flex flex-col items-center justify-center w-20 h-20 rounded-br-[3rem] shadow-md z-10">
                 <span className="text-[22px] font-bold leading-none mt-[-4px]">29</span>

@@ -39,7 +39,7 @@ export const CartProvider = ({ children }) => {
   }, [cartItems]);
 
   // ================= ĐÃ SỬA CHỖ NÀY =================
-  const addToCart = async (product, quantityToAdd = 1) => {
+  const addToCart = async (product, quantityToAdd = 1, showToast = true) => {
     const user = JSON.parse(localStorage.getItem('user'));
 
     // DB chỉ nhận ID là số nguyên int, lọc bỏ hậu tố hoặc tiền tố lạ
@@ -51,15 +51,24 @@ export const CartProvider = ({ children }) => {
 
     if (user && user.id) {
       try {
-        await axios.post('https://nhom17-chieut6.onrender.com/api/cart/add', {
+        const res = await axios.post('https://nhom17-chieut6.onrender.com/api/cart/add', {
           user_id: user.id,
           product_id: dbProductId,
           quantity: quantityToAdd
         });
-        fetchCart(user.id);
-        toast.success(`🛒 Đã thêm ${quantityToAdd} "${product.name}" vào giỏ!`, { autoClose: 2000, theme: "colored" });
+        
+        // KIỂM TRA LỖI TRẢ VỀ TỪ BACKEND
+        if (res.data && res.data.success === false) {
+           throw new Error(res.data.message || "Sản phẩm không có ID hợp lệ hoặc hết hàng!");
+        }
+
+        await fetchCart(user.id); // BẮT BUỘC ĐỢI đồng bộ State xong mới đi tiếp
+        if (showToast) {
+            toast.success(`🛒 Đã thêm ${quantityToAdd} "${product.name}" vào giỏ!`, { autoClose: 2000, theme: "colored" });
+        }
       } catch (error) {
-        toast.error("Không thể thêm vào giỏ hàng");
+        toast.error(error.message || "Không thể thêm vào giỏ hàng vì lỗi máy chủ.");
+        throw error; // BẮT BUỘC: Ném lỗi ra ngoài để Promise.all chặn được luồng Navigate
       }
     } else {
       setCartItems((prevItems) => {
@@ -72,7 +81,9 @@ export const CartProvider = ({ children }) => {
           return [...prevItems, { ...product, quantity: quantityToAdd }];
         }
       });
-      toast.success(`🛒 Đã thêm ${quantityToAdd} "${product.name}" vào giỏ!`, { autoClose: 2000, theme: "colored" });
+      if (showToast) {
+          toast.success(`🛒 Đã thêm ${quantityToAdd} "${product.name}" vào giỏ!`, { autoClose: 2000, theme: "colored" });
+      }
     }
   };
   // ==================================================
@@ -86,7 +97,7 @@ export const CartProvider = ({ children }) => {
         await axios.delete('https://nhom17-chieut6.onrender.com/api/cart/remove', {
           data: { cart_id: cartId, product_id: id }
         });
-        fetchCart(user.id);
+        await fetchCart(user.id);
         toast.info("🗑️ Đã xóa sản phẩm khỏi giỏ hàng", { autoClose: 1500 });
       } catch (error) { }
     } else {
@@ -106,7 +117,7 @@ export const CartProvider = ({ children }) => {
           product_id: id,
           quantity: newQuantity
         });
-        fetchCart(user.id);
+        await fetchCart(user.id);
       } catch (error) { }
     } else {
       setCartItems(prevItems =>
@@ -116,7 +127,7 @@ export const CartProvider = ({ children }) => {
   };
 
   return (
-    <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, updateQuantity, setCartItems }}>
+    <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, updateQuantity, setCartItems, fetchCart }}>
       {children}
     </CartContext.Provider>
   );

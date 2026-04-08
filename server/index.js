@@ -62,6 +62,15 @@ app.use('/', adminRoute);
 // Cho phép truy cập thư mục public
 app.use('/public', express.static('public'));
 const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
     console.log(`\n🚀 Server Nhóm 17 chạy tại: http://localhost:${PORT}`);
+    setInterval(() => console.log('Ping...'), 10000); // Giữ server sống
+});
+server.on("error", (e) => {
+    if (e.code === 'EADDRINUSE') {
+        console.error(`\n⚠️ LỖI: Cổng ${PORT} đã bị chiếm bởi một phiên bản server Node.js khác đang chạy ngầm! Vui lòng tắt nó trước.`);
+        process.exit(1);
+    } else {
+        console.error("Lỗi:", e);
+    }
 });

@@ -15,7 +15,7 @@ const CartPage = () => {
   const getImageUrl = (url) => {
     if (!url) return PLACEHOLDER_IMG;
     if (url.startsWith('http')) return url;
-    return `https://nhom17-chieut6.onrender.com/public/images/${url}`; 
+    return url.startsWith('/images/') ? url : `/images/${url}`;
   };
 
   // Hàm tính tổng tiền

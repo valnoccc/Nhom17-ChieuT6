@@ -2,16 +2,13 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { API } from '../../../services/config';
 import { FaSpinner } from 'react-icons/fa';
-// ================= THÊM DÒNG NÀY ĐỂ HẾT LỖI =================
 import { Link } from 'react-router-dom';
-// ==========================================================
+
 import ProductCard from './ProductCard';
 
 // IMPORT BANNER (Giữ lại ảnh tĩnh cho banner)
-import bannerBinhGiuNhiet from "../../../images/banner_binh_giu_nhiet.png";
-import imgDefault from "../../../images/may_xay_sinh_to_mini_elmich_ble9244.png";
-
-const PLACEHOLDER_IMG = imgDefault;
+// ================= DÙNG ĐƯỜNG DẪN PUBLIC =================
+const PLACEHOLDER_IMG = '/images/may_xay_sinh_to_mini_elmich_ble9244.png';
 
 const ProductGrid = ({ title = "Danh sách" }) => {
   const [products, setProducts] = useState([]);
@@ -33,7 +30,7 @@ const ProductGrid = ({ title = "Danh sách" }) => {
             if (item.thumbnail_url) {
               imgUrl = item.thumbnail_url.startsWith('http')
                 ? item.thumbnail_url
-                : `https://nhom17-chieut6.onrender.com/public/images/${item.thumbnail_url}`;
+                : (item.thumbnail_url.startsWith('/images/') ? item.thumbnail_url : `/images/${item.thumbnail_url}`);
             }
 
             return {
@@ -70,7 +67,7 @@ const ProductGrid = ({ title = "Danh sách" }) => {
           {/* Ô SỐ 1: LUÔN HIỂN THỊ BANNER */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden relative group h-full flex flex-col">
             <img
-              src={bannerBinhGiuNhiet}
+              src="/images/banner_binh_giu_nhiet.png"
               alt="Banner Khuyến Mãi"
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 cursor-pointer"
             />

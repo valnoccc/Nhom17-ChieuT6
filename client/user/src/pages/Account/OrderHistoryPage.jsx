@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaUserCircle, FaClipboardList, FaMapMarkerAlt, FaSignOutAlt, FaBox, FaTruck, FaCheckCircle, FaTimesCircle, FaSpinner, FaHeart, FaKey } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import PageWrapper from '../../components/layout/PageWrapper';
 import Header from '../../components/layout/Header';
+import { useCart } from '../../context/CartContext';
 import Footer from '../../components/layout/Footer';
 
 // ẢNH DỰ PHÒNG KHI LỖI HOẶC CHƯA CÓ ẢNH
-import imgDefault from "../../images/may_xay_sinh_to_mini_elmich_ble9244.png";
-const PLACEHOLDER_IMG = imgDefault;
+const PLACEHOLDER_IMG = '/images/may_xay_sinh_to_mini_elmich_ble9244.png';
 
 // ================= DỮ LIỆU ĐƠN HÀNG MẪU (DỰ PHÒNG KHI API LỖI) =================
 const MOCK_ORDERS = [
@@ -19,8 +19,8 @@ const MOCK_ORDERS = [
     date: "25/08/2025 14:30",
     status: "ĐÃ GIAO",
     items: [
-      { name: "Cốc giữ nhiệt inox 304 Elmich EL1049 dung tích 550ml", price: 369000, quantity: 2, image: PLACEHOLDER_IMG },
-      { name: "Nồi chống dính ceramic Elmich Harmony EL5540PT", price: 675000, quantity: 1, image: PLACEHOLDER_IMG }
+      { id: 1, name: "Cốc giữ nhiệt inox 304 Elmich EL1049 dung tích 550ml", price: 369000, quantity: 2, image: PLACEHOLDER_IMG },
+      { id: 2, name: "Nồi chống dính ceramic Elmich Harmony EL5540PT", price: 675000, quantity: 1, image: PLACEHOLDER_IMG }
     ],
     shippingFee: 0,
     discount: 120000,
@@ -31,7 +31,7 @@ const MOCK_ORDERS = [
     date: "28/08/2025 09:15",
     status: "CHỜ XÁC NHẬN",
     items: [
-      { name: "Nồi chảo lẩu đa năng Inox liền khối Elmich Trimax XS", price: 925000, quantity: 1, image: PLACEHOLDER_IMG }
+      { id: 3, name: "Nồi chảo lẩu đa năng Inox liền khối Elmich Trimax XS", price: 925000, quantity: 1, image: PLACEHOLDER_IMG }
     ],
     shippingFee: 35000,
     discount: 0,
@@ -42,7 +42,7 @@ const MOCK_ORDERS = [
     date: "10/07/2025 19:45",
     status: "ĐÃ HỦY",
     items: [
-      { name: "Cốc giữ nhiệt inox 304 Elmich EL1049 dung tích 550ml", price: 369000, quantity: 1, image: PLACEHOLDER_IMG }
+      { id: 1, name: "Cốc giữ nhiệt inox 304 Elmich EL1049 dung tích 550ml", price: 369000, quantity: 1, image: PLACEHOLDER_IMG }
     ],
     shippingFee: 35000,
     discount: 0,
@@ -54,10 +54,13 @@ const TABS = ['TẤT CẢ', 'CHỜ XÁC NHẬN', 'ĐANG GIAO', 'ĐÃ GIAO', 'Đ�
 
 const OrderHistoryPage = () => {
   const [activeTab, setActiveTab] = useState('TẤT CẢ');
+  const navigate = useNavigate();
+  const { addToCart, fetchCart } = useCart();
 
   // ================= STATE DỮ LIỆU TỪ API =================
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [reorderingId, setReorderingId] = useState(null); // Quản lý ID đăng Mua lại để chống click đúp
 
   // LẤY DỮ LIỆU USER TỪ LOCAL STORAGE
   const localUser = JSON.parse(localStorage.getItem('user')) || {};
@@ -71,7 +74,7 @@ const OrderHistoryPage = () => {
   const getImageUrl = (url) => {
     if (!url) return PLACEHOLDER_IMG;
     if (url.startsWith('http')) return url;
-    return `https://nhom17-chieut6.onrender.com/public/images/${url}`;
+    return url.startsWith('/images/') ? url : `/images/${url}`;
   };
 
   // ================= GỌI API LẤY LỊCH SỬ ĐƠN HÀNG =================
@@ -80,7 +83,11 @@ const OrderHistoryPage = () => {
       try {
         setIsLoading(true);
         // Lưu ý: Thay đổi endpoint này cho đúng với API backend của bạn
-        const response = await axios.get("https://nhom17-chieut6.onrender.com/api/orders");
+        if (!localUser || !localUser.id) {
+            setOrders([]);
+            return;
+        }
+        const response = await axios.get(`https://nhom17-chieut6.onrender.com/api/orders/user/${localUser.id}`);
 
         if (response.data && response.data.success && response.data.data.length > 0) {
           // Format lại dữ liệu từ DB (nếu cần)
@@ -115,12 +122,67 @@ const OrderHistoryPage = () => {
     return order.status?.toUpperCase() === activeTab;
   });
 
-  const handleReorder = () => {
-    toast.success("🛒 Đã thêm các sản phẩm vào giỏ hàng!");
+  const handleReorder = async (order) => {
+    if (!order.items || order.items.length === 0) return;
+
+    setReorderingId(order.id); // Bật hiệu ứng xoay loading cho riêng nút của đơn này
+
+    try {
+      // Nhóm toàn bộ lời gọi API thành một mảng Promise
+      const addPromises = order.items.map(item => {
+        if (item.id) {
+          const payloadObj = {
+            id: item.id, 
+            name: item.name, 
+            price: item.price, 
+            thumbnail_url: item.image 
+          };
+          console.log('PAYLOAD CHUẨN:', payloadObj, 'Quantity:', item.quantity);
+          return addToCart(payloadObj, item.quantity, false);
+        }
+        return Promise.resolve();
+      });
+
+      // Đợi TẤT CẢ các API đồng loạt trả về (Tránh tình trạng xử lý chưa xong đã điều hướng)
+      await Promise.all(addPromises);
+
+      // (TÙY CHỌN): Gọi thêm fetchCart để ép ứng dụng đồng bộ dữ liệu ngay lập tức
+      const localUser = JSON.parse(localStorage.getItem('user'));
+      if (localUser && localUser.id && fetchCart) {
+         await fetchCart(localUser.id);
+      }
+
+      toast.success("🛒 Đã nạp thành công toàn bộ sản phẩm vào Giỏ!");
+      
+      // Chuyển tới Giỏ hàng sau khi 100% Resolved
+      navigate('/cart');
+      
+    } catch (error) {
+       console.error("Lỗi Mua lại đơn hàng:", error);
+       toast.error("⚠️ Lỗi khi thêm vào giỏ hàng. Vui lòng thử lại!");
+    } finally {
+       setReorderingId(null); // Tắt hiệu ứng tải
+    }
   };
 
-  const handleCancelOrder = () => {
-    toast.info("Đã gửi yêu cầu hủy đơn hàng!");
+  const handleCancelOrder = async (orderId) => {
+    const isConfirm = window.confirm(`Cảnh báo: Bạn có chắc chắn muốn hủy đơn hàng mã ${orderId} không?`);
+    if (!isConfirm) return;
+
+    try {
+      // Gọi API giả định
+      const response = await axios.put(`https://nhom17-chieut6.onrender.com/api/orders/${orderId}/cancel`);
+      if (response.data.success) {
+        toast.success(`✅ Đã hủy đơn hàng mã ${orderId} thành công!`);
+        // Cập nhật state nội bộ ngay lập tức để UI render lại mà không cần F5
+        setOrders(prev => prev.map(order => 
+          order.id === orderId ? { ...order, status: 'ĐÃ HỦY' } : order
+        ));
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("⚠️ Không thể hủy đơn hàng lúc này!");
+    }
   };
 
   // Hàm render màu sắc và icon theo trạng thái
@@ -212,7 +274,9 @@ const OrderHistoryPage = () => {
             ) : filteredOrders.length === 0 ? (
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 py-20 flex flex-col items-center justify-center">
                 <img src="https://cdn-icons-png.flaticon.com/512/743/743131.png" alt="Empty" className="w-24 h-24 mb-4 opacity-30 grayscale" />
-                <p className="text-gray-500 font-medium">Chưa có đơn hàng nào</p>
+                <p className="text-gray-500 font-medium">
+                  {activeTab === 'TẤT CẢ' ? 'Chưa có đơn hàng nào' : `Bạn chưa có đơn hàng nào trong trạng thái ${activeTab}`}
+                </p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -259,13 +323,21 @@ const OrderHistoryPage = () => {
                       <div className="flex items-center gap-3 w-full md:w-auto">
                         {order.status === 'ĐÃ HỦY' || order.status === 'ĐÃ GIAO' ? (
                           <>
-                            <button className="flex-1 md:flex-none border border-gray-300 text-gray-700 px-6 py-2.5 rounded-lg text-[13px] font-bold hover:bg-gray-50 transition-colors">Xem chi tiết</button>
-                            <button onClick={handleReorder} className="flex-1 md:flex-none bg-[#ed1c24] text-white px-6 py-2.5 rounded-lg text-[13px] font-bold shadow-md hover:bg-red-800 transition-colors">Mua lại</button>
+                            <button onClick={() => navigate(`/account/orders/${order.id}`)} className="flex-1 md:flex-none border border-gray-300 text-gray-700 px-6 py-2.5 rounded-lg text-[13px] font-bold hover:bg-gray-50 transition-colors">Xem chi tiết</button>
+                            <button 
+                              onClick={() => handleReorder(order)} 
+                              disabled={reorderingId === order.id}
+                              className={`flex-1 flex items-center justify-center gap-2 md:flex-none text-white px-6 py-2.5 rounded-lg text-[13px] font-bold shadow-md transition-colors ${
+                                reorderingId === order.id ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#ed1c24] hover:bg-red-800'
+                              }`}
+                            >
+                              {reorderingId === order.id ? <><FaSpinner className="animate-spin text-sm" /> ĐANG NẠP...</> : "Mua lại"}
+                            </button>
                           </>
                         ) : (
                           <>
                             {order.status === 'CHỜ XÁC NHẬN' && (
-                              <button onClick={handleCancelOrder} className="flex-1 md:flex-none border border-red-200 text-red-500 bg-red-50 px-6 py-2.5 rounded-lg text-[13px] font-bold hover:bg-red-100 transition-colors">Hủy đơn</button>
+                              <button onClick={() => handleCancelOrder(order.id)} className="flex-1 md:flex-none border border-red-200 text-red-500 bg-red-50 px-6 py-2.5 rounded-lg text-[13px] font-bold hover:bg-red-100 transition-colors">Hủy đơn</button>
                             )}
                             <button className="flex-1 md:flex-none bg-[#338dbc] text-white px-6 py-2.5 rounded-lg text-[13px] font-bold shadow-md hover:bg-blue-700 transition-colors">Liên hệ CSKH</button>
                           </>

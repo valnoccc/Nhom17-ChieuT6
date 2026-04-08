@@ -6,8 +6,7 @@ import Footer from '../../components/layout/Footer';
 import SidebarFilter from './components/SidebarFilter';
 import ProductCard from '../Home/components/ProductCard';
 
-import imgDefault from "../../images/may_xay_sinh_to_mini_elmich_ble9244.png";
-const PLACEHOLDER_IMG = imgDefault;
+const PLACEHOLDER_IMG = '/images/may_xay_sinh_to_mini_elmich_ble9244.png';
 
 const ProductSkeleton = () => (
   <div className="bg-white rounded-xl p-5 border border-gray-100 animate-pulse">
@@ -45,18 +44,16 @@ const ProductListPage = () => {
 
         if (response.data && response.data.success) {
           const formattedData = response.data.data.map(item => {
-            // Sử dụng trực tiếp category_name trả về từ database (SQL JOIN)
-            // Nếu không có tên danh mục thì mặc định là "Dụng cụ nhà bếp" hoặc "Khác"
-            const catName = item.category_name || "Dụng cụ nhà bếp";
-
             return {
               ...item,
               // Xử lý đường dẫn ảnh động hoặc ảnh mặc định
               image: item.thumbnail_url?.startsWith('http')
                 ? item.thumbnail_url
-                : `https://nhom17-chieut6.onrender.com/public/images/${item.thumbnail_url}`,
+                : (item.thumbnail_url?.startsWith('/images/') ? item.thumbnail_url : `/images/${item.thumbnail_url}`),
 
-              category: catName, // Gán danh mục chuẩn để bộ lọc Sidebar hoạt động đúng
+              // Giữ lại category_id để map sau
+              category_id: item.category_id,
+              category_name: item.category_name,
               price: Number(item.price || 0),
               oldPrice: item.old_price ? Number(item.old_price) : null,
               rating: item.rating || 5
@@ -101,12 +98,20 @@ const ProductListPage = () => {
 
   // LOGIC LỌC TÍCH HỢP TỪ KHÓA TÌM KIẾM
   const filteredProducts = useMemo(() => {
-    let result = [...products];
+    // Map category name động khi state thay đổi
+    let result = products.map(p => {
+      const catObj = categories.find(c => c.id === p.category_id);
+      return {
+        ...p,
+        category: catObj ? catObj.name : (p.category_name || "Dụng cụ nhà bếp")
+      };
+    });
 
     // 1. LỌC THEO TỪ KHÓA TÌM KIẾM TRÊN HEADER
     if (searchQuery) {
       const lowerQuery = searchQuery.toLowerCase();
-      result = result.filter(p => p.name.toLowerCase().includes(lowerQuery));
+      // FIX LỖI CRASH UI: Bổ sung p.name && để tránh lỗi .toLowerCase khi tên bị null
+      result = result.filter(p => p.name && p.name.toLowerCase().includes(lowerQuery));
     }
 
     // 2. Lọc theo danh mục (bên Sidebar)
@@ -121,7 +126,7 @@ const ProductListPage = () => {
     else if (activeSort === "Giá cao đến thấp") result.sort((a, b) => b.price - a.price);
 
     return result;
-  }, [products, filters, activeSort, searchQuery]);
+  }, [products, categories, filters, activeSort, searchQuery]);
 
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
   const currentItems = filteredProducts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);

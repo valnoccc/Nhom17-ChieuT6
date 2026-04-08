@@ -9,8 +9,6 @@ import FlashSale from './components/FlashSale';
 import ProductGrid from './components/ProductGrid';
 import PageWrapper from '../../components/layout/PageWrapper'; 
 
-import sideBannerBinh from '../../images/banner2.jpg'; 
-
 const HomePage = () => {
   return (
     <PageWrapper>
@@ -40,7 +38,7 @@ const HomePage = () => {
             >
               <div className="w-full rounded-xl shadow-md overflow-hidden cursor-pointer hover:shadow-xl transition-shadow border-2 border-white bg-white">
                 <img 
-                  src={sideBannerBinh} 
+                  src="/images/banner2.png"
                   alt="Quảng cáo ngang" 
                   className="w-full h-auto block opacity-95 hover:opacity-100 transition-opacity"
                 />

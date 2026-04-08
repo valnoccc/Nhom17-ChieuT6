@@ -16,14 +16,7 @@ const FlashSale = () => {
   const getImageUrl = (url) => {
     if (!url) return PLACEHOLDER_IMG;
     if (url.startsWith('http')) return url;
-
-    // Lacoste kiểm tra xem folder ảnh của bạn tên là gì nhé (vd: images hay product-img)
-    const finalUrl = `https://nhom17-chieut6.onrender.com/public/images/${url}`;
-
-    // Dòng này để bạn copy link dán lên trình duyệt test xem ảnh có tồn tại không
-    console.log("Link ảnh kiểm tra:", finalUrl);
-
-    return finalUrl;
+    return url.startsWith('/images/') ? url : `/images/${url}`;
   };
 
   useEffect(() => {

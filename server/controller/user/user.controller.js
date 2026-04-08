@@ -1,7 +1,7 @@
 
 const getAllUsers = (req, res) => {
     const db = req.app.get('db');
-    const sql = "SELECT id, full_name, email, phone, address, role, created_at FROM Users";
+    const sql = "SELECT id, full_name, email, phone, address, role, created_at FROM users";
 
     db.query(sql, (err, results) => {
         if (err) {
@@ -32,9 +32,9 @@ const register = (req, res) => {
         return res.status(400).json({ success: false, message: "Thiếu dữ liệu bắt buộc" });
     }
 
-    const checkSql = "SELECT * FROM Users WHERE email = ?";
+    const checkSql = "SELECT * FROM users WHERE email = ?";
     db.query(checkSql, [email], async (err, results) => {
-        if (err) return res.status(500).json({ success: false, error: err.message });
+        if (err) return res.status(500).json({ success: false, message: err.message });
 
         if (results.length > 0) {
             return res.status(400).json({ success: false, message: "Email đã tồn tại" });
@@ -43,12 +43,12 @@ const register = (req, res) => {
         try {
             const hashedPassword = await bcrypt.hash(password, 10);
             const insertSql = `
-                INSERT INTO Users (full_name, email, password_hash, phone, role)
+                INSERT INTO users (full_name, email, password_hash, phone, role)
                 VALUES (?, ?, ?, ?, 'customer')
             `;
 
             db.query(insertSql, [full_name, email, hashedPassword, phone || null], (err) => {
-                if (err) return res.status(500).json({ success: false, error: err.message });
+                if (err) return res.status(500).json({ success: false, message: "Lỗi chạy lệnh thêm user: " + err.message });
                 res.status(201).json({ success: true, message: "Đăng ký thành công" });
             });
         } catch (error) {
@@ -66,9 +66,9 @@ const login = (req, res) => {
         return res.status(400).json({ success: false, message: "Vui lòng nhập email và mật khẩu" });
     }
 
-    const sql = "SELECT * FROM Users WHERE email = ?";
+    const sql = "SELECT * FROM users WHERE email = ?";
     db.query(sql, [email], async (err, results) => {
-        if (err) return res.status(500).json({ success: false, error: err.message });
+        if (err) return res.status(500).json({ success: false, message: err.message });
 
         if (results.length === 0) {
             return res.status(401).json({ success: false, message: "Email không tồn tại" });
@@ -107,7 +107,7 @@ const login = (req, res) => {
 const getProfile = (req, res) => {
     const db = req.app.get('db');
     const { id } = req.params;
-    const sql = "SELECT id, full_name, email, phone, avatar_url, address, role FROM Users WHERE id = ?";
+    const sql = "SELECT id, full_name, email, phone, avatar_url, address, role FROM users WHERE id = ?";
     db.query(sql, [id], (err, results) => {
         if (err) return res.status(500).json({ success: false, message: err.message });
         if (results.length === 0) return res.status(404).json({ success: false, message: "User not found" });
@@ -121,7 +121,7 @@ const updateProfile = (req, res) => {
     const { full_name, phone } = req.body;
     let avatar_url = req.file ? `avatars/${req.file.filename}` : undefined;
     
-    let sql = "UPDATE Users SET full_name = ?, phone = ?";
+    let sql = "UPDATE users SET full_name = ?, phone = ?";
     const params = [full_name, phone];
     
     if (avatar_url !== undefined) {
@@ -134,7 +134,7 @@ const updateProfile = (req, res) => {
     db.query(sql, params, (err, result) => {
         if (err) return res.status(500).json({ success: false, message: err.message });
         
-        db.query("SELECT id, full_name, email, phone, avatar_url, role FROM Users WHERE id = ?", [id], (err, results) => {
+        db.query("SELECT id, full_name, email, phone, avatar_url, role FROM users WHERE id = ?", [id], (err, results) => {
             if (err) return res.status(500).json({ success: false, message: err.message });
             res.json({ 
                 success: true, 
@@ -153,7 +153,7 @@ const changePassword = (req, res) => {
         return res.status(400).json({ success: false, message: "Vui lòng nhập mật khẩu cũ và mới" });
     }
     
-    db.query("SELECT password_hash FROM Users WHERE id = ?", [id], async (err, results) => {
+    db.query("SELECT password_hash FROM users WHERE id = ?", [id], async (err, results) => {
         if (err) return res.status(500).json({ success: false, message: err.message });
         if (results.length === 0) return res.status(404).json({ success: false, message: "Không tìm thấy người dùng" });
         
@@ -164,7 +164,7 @@ const changePassword = (req, res) => {
         
         try {
             const newHash = await bcrypt.hash(new_password, 10);
-            db.query("UPDATE Users SET password_hash = ? WHERE id = ?", [newHash, id], (updateErr) => {
+            db.query("UPDATE users SET password_hash = ? WHERE id = ?", [newHash, id], (updateErr) => {
                  if (updateErr) return res.status(500).json({ success: false, message: updateErr.message });
                  res.json({ success: true, message: "Đổi mật khẩu thành công!" });
             });

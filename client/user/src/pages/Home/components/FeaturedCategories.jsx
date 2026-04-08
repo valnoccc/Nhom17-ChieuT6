@@ -5,15 +5,7 @@ import { useCart } from "../../../context/CartContext";
 import { toast } from 'react-toastify';
 import axios from "axios";
 
-import imgBinhGiuNhiet from "../../../images/binh_giu_nhiet.png";
-import imgBoNoi from "../../../images/bo_noi.png";
-import imgDungCu from "../../../images/dung_cu_nha_bep.png";
-import imgMayEp from "../../../images/may_ep.png";
-import imgMayXay from "../../../images/may_xay_sinh_to.png";
-import imgCeramic from "../../../images/noi_chao_ceramic.png";
-
-import imgDefault from "../../../images/may_xay_sinh_to_mini_elmich_ble9244.png";
-const PLACEHOLDER_IMG = imgDefault;
+const PLACEHOLDER_IMG = '/images/may_xay_sinh_to_mini_elmich_ble9244.png';
 
 const vouchers = [
   { id: 1, title: "Voucher Giảm 120K", code: "L7TXMUHVO26M", desc: "Giảm 120.000đ đơn từ 1.000.000đ" },
@@ -22,24 +14,17 @@ const vouchers = [
   { id: 4, title: "Voucher Giảm 10%", code: "NJRVAXXY4J7E", desc: "Giảm 10% đơn từ 5 triệu" },
 ];
 
-const categories = [
-  { id: 1, name: "Tủ lạnh", img: imgCeramic },
-  { id: 2, name: "Máy giặt", img: imgMayXay },
-  { id: 3, name: "Quạt", img: imgBinhGiuNhiet },
-  { id: 4, name: "Máy lọc không khí", img: imgBoNoi },
-  { id: 5, name: "Máy xay sinh tố", img: imgMayEp },
-  { id: 6, name: "Dụng cụ nhà bếp", img: imgDungCu },
-];
-
 const FeaturedCategories = () => {
   const { addToCart } = useCart();
   const [topProducts, setTopProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
+  const [loadingCategories, setLoadingCategories] = useState(true);
 
   const getImageUrl = (url) => {
     if (!url) return PLACEHOLDER_IMG;
     if (url.startsWith('http')) return url;
-    return `https://nhom17-chieut6.onrender.com/public/images/${url}`;
+    return url.startsWith('/images/') ? url : `/images/${url}`;
   };
 
   useEffect(() => {
@@ -57,6 +42,23 @@ const FeaturedCategories = () => {
       }
     };
     fetchTopProducts();
+  }, []);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setLoadingCategories(true);
+        const response = await axios.get("https://nhom17-chieut6.onrender.com/api/categories");
+        // Giả sử API trả về { success: true, data: [...] } hoặc trực tiếp array
+        const list = response.data.data || response.data || [];
+        setCategories(list.slice(0, 6)); // Lấy 6 danh mục đầu tiên
+      } catch (error) {
+        console.error("Lỗi API Danh Mục:", error);
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+    fetchCategories();
   }, []);
 
   const handleCopyCode = (code) => {
@@ -102,7 +104,7 @@ const FeaturedCategories = () => {
                     <Link to={`/product/${product.id}`}><h3 className="text-[15px] text-[#333] font-medium mb-3 line-clamp-2 min-h-[44px] hover:text-[#e30019]">{product.name}</h3></Link>
                     <div className="mt-auto flex justify-between items-center">
                       <span className="text-[#e30019] text-[18px] font-bold">{Number(product.price).toLocaleString('vi-VN')}đ</span>
-                      <button onClick={() => { addToCart(product); toast.success("Đã thêm!"); }} className="bg-[#e30019] text-white w-9 h-9 rounded-full flex items-center justify-center hover:bg-red-800"><FaShoppingCart size={15} /></button>
+                      <button onClick={() => addToCart(product)} className="bg-[#e30019] text-white w-9 h-9 rounded-full flex items-center justify-center hover:bg-red-800"><FaShoppingCart size={15} /></button>
                     </div>
                   </div>
                 ))}
@@ -113,14 +115,18 @@ const FeaturedCategories = () => {
 
         <div>
           <h2 className="text-[20px] lg:text-[22px] font-bold text-[#333] mb-6 uppercase">DANH MỤC NỔI BẬT</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-            {categories.map((cat) => (
-              <Link to="/products" state={{ category: cat.name }} key={cat.id} className="bg-white rounded-xl py-6 px-4 text-center cursor-pointer border border-[#ebebeb] hover:border-[#e30019] transition-all group">
-                <img src={cat.img} alt={cat.name} className="w-[75px] h-[75px] object-contain mb-5 mx-auto group-hover:-translate-y-1.5 transition-transform duration-300" />
-                <p className="text-[14px] font-medium text-[#333] group-hover:text-[#e30019]">{cat.name}</p>
-              </Link>
-            ))}
-          </div>
+          {loadingCategories ? (
+            <div className="flex justify-center py-10"><FaSpinner className="animate-spin text-[#e30019] text-3xl" /></div>
+          ) : (
+            <div className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 ${categories.length === 4 ? 'lg:grid-cols-4' : categories.length === 5 ? 'lg:grid-cols-5' : 'lg:grid-cols-6'} gap-4 md:gap-6`}>
+              {categories.map((cat) => (
+                <Link to="/products" state={{ category: cat.name }} key={cat.id} className="bg-white rounded-xl py-6 px-4 text-center cursor-pointer border border-[#ebebeb] hover:border-[#e30019] transition-all group shadow-sm hover:shadow-md hover:-translate-y-1">
+                  <img src={getImageUrl(cat.thumbnail_url)} alt={cat.name} className="w-[75px] h-[75px] object-contain mb-5 mx-auto group-hover:-translate-y-1.5 transition-transform duration-300" />
+                  <p className="text-[14px] font-medium text-[#333] group-hover:text-[#e30019]">{cat.name}</p>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

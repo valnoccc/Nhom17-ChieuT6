@@ -1,13 +1,7 @@
 import React from 'react';
 import { FaFacebook, FaTiktok, FaYoutube, FaAngleUp, FaPhoneAlt, FaFacebookMessenger } from 'react-icons/fa';
 
-// IMPORT ẢNH 
-import logoElmich from '../../images/logo_elmich.png';
-import logoShopee from '../../images/logo_shopee.png';
-import payment1 from '../../images/payment-1.png';
-import payment2 from '../../images/payment-2.png';
-import payment3 from '../../images/payment-3.png';
-import logoBct from '../../images/logo_bct.png';
+// ================= DÙNG ĐƯỜNG DẪN PUBLIC =================
 
 const Footer = () => {
   return (
@@ -38,7 +32,7 @@ const Footer = () => {
             {/* CỘT 1: Thông tin công ty */}
             <div className="lg:col-span-4">
               <img 
-                src={logoElmich} 
+                src="/images/logo_elmich.png" 
                 alt="Elmich Logo"
                 className="mb-4"
               />
@@ -95,19 +89,19 @@ const Footer = () => {
                 <a href="#" className="w-[38px] h-[38px] rounded-full bg-[#1ba8ff] text-white flex items-center justify-center text-[13px] font-bold hover:opacity-80 shadow-sm transition-transform hover:scale-105">Tiki</a>
                 <a href="#" className="w-[38px] h-[38px] rounded-full bg-[#ff0000] text-white flex items-center justify-center text-[20px] hover:opacity-80 shadow-sm transition-transform hover:scale-105"><FaYoutube /></a>
                 <a href="#" className="w-[38px] h-[38px] rounded-full overflow-hidden hover:opacity-80 shadow-sm transition-transform hover:scale-105">
-                  <img src={logoShopee} alt="Shopee" className="w-full h-full object-cover scale-110" />
+                  <img src="/images/logo_shopee.png" alt="Shopee" className="w-full h-full object-cover scale-110" />
                 </a>
               </div>
 
               <h4 className="text-[16px] text-gray-700 mb-4 font-semibold whitespace-nowrap">Phương thức thanh toán</h4>
               
               <div className="flex flex-wrap items-center gap-4 mb-6">
-                <img src={payment1} alt="VNPay" className="h-[24px] object-contain" />
-                <img src={payment2} alt="Visa" className="h-[20px] object-contain" />
-                <img src={payment3} alt="MasterCard" className="h-[24px] object-contain" />
+                <img src="/images/payment-1.png" alt="VNPay" className="h-[24px] object-contain" />
+                <img src="/images/payment-2.png" alt="Visa" className="h-[20px] object-contain" />
+                <img src="/images/payment-3.png" alt="MasterCard" className="h-[24px] object-contain" />
               </div>
 
-              <img src={logoBct} alt="Đã thông báo Bộ Công Thương" className="h-12 object-contain" />
+              <img src="/images/logo_bct.png" alt="Đã thông báo Bộ Công Thương" className="h-12 object-contain" />
             </div>
 
           </div>

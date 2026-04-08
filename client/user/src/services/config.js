@@ -1,5 +1,6 @@
 // API configuration
-export const API_BASE_URL = 'https://nhom17-chieut6.onrender.com';
+// export const API_BASE_URL = 'https://nhom17-chieut6.onrender.com';
+export const API_BASE_URL = 'https://nhom17-chieut6.onrender.com'; // Dùng local để kiểm tra lệnh đã sửa
 
 export const API = {
     // User endpoints

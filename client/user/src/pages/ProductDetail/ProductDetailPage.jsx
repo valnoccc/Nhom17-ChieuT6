@@ -9,11 +9,8 @@ import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
 
 // ================= TẤT CẢ IMPORT PHẢI Ở TRÊN CÙNG =================
-import logoElmich from "../../images/logo_elmich.png";
-import imgDefault from "../../images/may_xay_sinh_to_mini_elmich_ble9244.png";
-
-// ================= KHAI BÁO BIẾN TĨNH =================
-const PLACEHOLDER_IMG = imgDefault;
+// ================= DÙNG ĐƯỜNG DẪN PUBLIC =================
+const PLACEHOLDER_IMG = '/images/may_xay_sinh_to_mini_elmich_ble9244.png';
 
 const STATIC_VOUCHERS = [
   { display: "Giảm 120K", code: "L7TXMUHVO26M" },
@@ -36,7 +33,7 @@ const ProductDetailPage = () => {
   const getImageUrl = (url) => {
     if (!url) return PLACEHOLDER_IMG;
     if (url.startsWith('http')) return url;
-    return `https://nhom17-chieut6.onrender.com/public/images/${url}`;
+    return url.startsWith('/images/') ? url : `/images/${url}`;
   };
 
   // 1. GỌI API LẤY CHI TIẾT SẢN PHẨM
@@ -50,7 +47,7 @@ const ProductDetailPage = () => {
         const response = await axios.get(`https://nhom17-chieut6.onrender.com/api/products/${id}`);
 
         //test trên local
-        //const response = await axios.get(`http://localhost:10000/api/products/${id}`);
+        //const response = await axios.get(`https://nhom17-chieut6.onrender.com/api/products/${id}`);
 
         // Kiểm tra dữ liệu trả về từ server
         if (response.data && response.data.success) {
@@ -58,10 +55,9 @@ const ProductDetailPage = () => {
 
           setProduct(productData);
 
-          // Ưu tiên hiển thị ảnh đầu tiên từ mảng ảnh chi tiết, nếu không có thì dùng ảnh đại diện
-          const defaultImg = (productData.all_images && productData.all_images.length > 0)
-            ? productData.all_images[0]
-            : productData.thumbnail_url;
+          // Ưu tiên hiển thị ảnh thumbnail_url trước vì nó là ảnh đại diện (ảnh 1)
+          const defaultImg = productData.thumbnail_url || 
+            ((productData.all_images && productData.all_images.length > 0) ? productData.all_images[0] : PLACEHOLDER_IMG);
 
           setActiveImage(defaultImg);
         } else {
@@ -99,7 +95,6 @@ const ProductDetailPage = () => {
 
   const handleAddToCart = () => {
     addToCart(product, quantity);
-    toast.success("Đã thêm vào giỏ hàng!");
   };
 
   const handleBuyNow = () => {
@@ -135,7 +130,7 @@ const ProductDetailPage = () => {
               {/* Khung ảnh lớn */}
               <div className="w-full aspect-square border border-gray-200 rounded-lg p-6 flex items-center justify-center bg-gray-50 relative">
                 <div className="absolute top-4 left-4 bg-white px-3 py-1.5 rounded-md shadow-sm border border-gray-100 flex items-center gap-1 z-10">
-                  <img src={logoElmich} alt="elmich" className="h-4" />
+                  <img src="/images/logo_elmich.png" alt="elmich" className="h-4" />
                   <span className="text-[11px] font-bold text-gray-700">CHUẨN CHÂU ÂU</span>
                 </div>
                 <img

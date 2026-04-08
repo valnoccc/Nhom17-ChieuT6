@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import {
   LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
 import PageWrapper from '../Layout/PageWrapper';
 
-//const BASE_URL = 'http://localhost:10000';
+//const BASE_URL = 'https://nhom17-chieut6.onrender.com';
 const BASE_URL = 'https://nhom17-chieut6.onrender.com';
 
 function Dashboard() {

@@ -2,10 +2,7 @@ import React from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 
-// 1. IMPORT ẢNH VÀO ĐÂY
-import bannerImg1 from '../../../images/banner1.jpg';
-import bannerImg2 from "../../../images/banner2.jpg"; 
-// ========================================================
+// ================= DÙNG ĐƯỜNG DẪN PUBLIC =================
 
 const HeroBanner = () => {
   return (
@@ -24,7 +21,7 @@ const HeroBanner = () => {
           {/* SLIDE 1 */}
           <SwiperSlide>
             <img 
-              src={bannerImg1} 
+              src="/images/banner1.jpg"
               alt="Banner Khuyến Mãi 1" 
               // object-cover và object-center giúp ảnh full khung, tâm ảnh luôn ở giữa
               className="w-full h-full object-cover object-center"
@@ -35,7 +32,7 @@ const HeroBanner = () => {
           <SwiperSlide>
             <img 
               // Sử dụng biến nhập mới trỏ đến ảnh mới có tên banner 2
-              src={bannerImg2} 
+              src="/images/banner2.png"
               alt="Banner Khuyến Mãi 2" 
               // Sử dụng cùng class để ảnh tràn khung và căn giữa giống Slide 1
               className="w-full h-full object-cover object-center"
