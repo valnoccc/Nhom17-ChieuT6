@@ -46,7 +46,7 @@ const OrderHistoryPage = () => {
         }
 
         // 2. Gửi request kèm Header Authorization
-        const response = await axios.get("http://localhost:10000/api/orders/history", {
+        const response = await axios.get("https://nhom17-chieut6.onrender.com/api/orders/history", {
           headers: {
             Authorization: `Bearer ${token}` // Đây là phần quan trọng nhất
           }
