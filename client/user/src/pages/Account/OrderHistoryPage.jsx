@@ -37,24 +37,27 @@ const OrderHistoryPage = () => {
       try {
         setIsLoading(true);
 
-        // Lấy ID của user đang login từ localStorage
-        const localUser = JSON.parse(localStorage.getItem('user')) || {};
-        const userId = localUser.id;
+        // 1. Lấy token từ localStorage (Lộc kiểm tra xem lúc Login đã lưu chưa nhé)
+        const token = localStorage.getItem('token');
 
-        if (!userId) {
-          toast.error("Vui lòng đăng nhập để xem lịch sử!");
+        if (!token) {
+          toast.error("Vui lòng đăng nhập lại!");
           return;
         }
 
-        // Gửi kèm userId vào query string để Backend nhận được
-        const response = await axios.get(`http://localhost:10000/api/orders/history?userId=${userId}`);
+        // 2. Gửi request kèm Header Authorization
+        const response = await axios.get("http://localhost:10000/api/orders/history", {
+          headers: {
+            Authorization: `Bearer ${token}` // Đây là phần quan trọng nhất
+          }
+        });
 
         if (response.data && response.data.success) {
           setOrders(response.data.data);
         }
       } catch (error) {
-        console.error("Lỗi API Đơn hàng:", error);
-        toast.error("Không thể tải lịch sử đơn hàng");
+        console.error("Lỗi 401/403:", error.response);
+        toast.error("Phiên đăng nhập hết hạn hoặc không hợp lệ!");
       } finally {
         setIsLoading(false);
       }
@@ -64,7 +67,7 @@ const OrderHistoryPage = () => {
 
   const filteredOrders = orders.filter(order => {
     if (activeTab === 'TẤT CẢ') return true;
-    return order.status === activeTab;
+    return order.status?.toUpperCase() === activeTab.toUpperCase();
   });
 
   const getStatusDisplay = (status) => {

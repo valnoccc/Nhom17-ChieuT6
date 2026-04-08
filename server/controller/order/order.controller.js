@@ -80,21 +80,16 @@ const checkout = async (req, res) => {
     }
 };
 
-// Lấy danh sách đơn hàng của người dùng
 const getOrderHistory = (req, res) => {
     const db = req.app.get('db');
-
-    // Ưu tiên lấy từ req.user (nếu có Auth), nếu không thì lấy từ query (để test)
-    // Điều này sẽ giải quyết lỗi "reading 'id' of undefined"
-    const userId = (req.user && req.user.id) ? req.user.id : req.query.userId;
-
-    if (!userId) {
-        return res.status(400).json({ success: false, message: "Thiếu thông tin người dùng!" });
-    }
+    const userId = req.user.id; // Lấy từ verifyToken
 
     const sql = `
         SELECT 
-            o.id, o.total_amount, o.status, o.created_at,
+            o.id, 
+            o.total_amount, 
+            o.status, 
+            o.created_at,
             GROUP_CONCAT(p.name SEPARATOR ', ') AS product_names
         FROM orders o
         JOIN order_details od ON o.id = od.order_id
@@ -105,11 +100,9 @@ const getOrderHistory = (req, res) => {
     `;
 
     db.query(sql, [userId], (err, results) => {
-        if (err) {
-            console.error("❌ Lỗi SQL Order History:", err.message);
-            return res.status(500).json({ success: false, error: err.message });
-        }
+        if (err) return res.status(500).json({ success: false, error: err.message });
         res.json({ success: true, data: results });
     });
 };
+
 module.exports = { checkout, getOrderHistory };

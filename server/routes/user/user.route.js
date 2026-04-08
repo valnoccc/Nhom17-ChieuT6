@@ -7,9 +7,6 @@ const upload = require('../../middleware/upload');
 router.post('/login', userController.login);
 router.post('/register', userController.register);
 
-// Protected routes (cần authentication - có thể thêm middleware sau)
-router.get('/', userController.getAllUsers);
-
 router.get('/profile/:id', userController.getProfile);
 router.put('/profile/:id', upload.single('avatar'), userController.updateProfile);
 router.post('/change-password', userController.changePassword);

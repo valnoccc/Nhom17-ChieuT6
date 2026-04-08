@@ -1,4 +1,5 @@
 require('dotenv').config();
+
 const express = require('express');
 // SỬA: Dùng mysql2 bản thường (hỗ trợ Callback) thay vì /promise
 const mysql = require('mysql2');
