@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
-// SỬA: Dùng mysql2 bản thường (hỗ trợ Callback) thay vì /promise
-const mysql = require('mysql2');
+// Dùng mysql2/promise để hỗ trợ async/await
+const mysql = require('mysql2/promise');
 const cors = require('cors');
 const app = express();
 

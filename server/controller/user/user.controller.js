@@ -1,24 +1,4 @@
 
-const getAllUsers = (req, res) => {
-    const db = req.app.get('db');
-    const sql = "SELECT id, full_name, email, phone, address, role, created_at FROM Users";
-
-    db.query(sql, (err, results) => {
-        if (err) {
-            console.error("Lỗi truy vấn TiDB:", err.message);
-            return res.status(500).json({
-                success: false,
-                message: "Lỗi kết nối cơ sở dữ liệu"
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            message: "Lấy danh sách người dùng thành công",
-            data: results
-        });
-    });
-};
 //dang ky
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -106,7 +86,8 @@ const login = (req, res) => {
 
 const getProfile = (req, res) => {
     const db = req.app.get('db');
-    const { id } = req.params;
+    // Lấy ID trực tiếp từ token để chặn lỗ hổng IDOR
+    const id = req.user.id;
     const sql = "SELECT id, full_name, email, phone, avatar_url, address, role FROM Users WHERE id = ?";
     db.query(sql, [id], (err, results) => {
         if (err) return res.status(500).json({ success: false, message: err.message });
@@ -117,27 +98,33 @@ const getProfile = (req, res) => {
 
 const updateProfile = (req, res) => {
     const db = req.app.get('db');
-    const { id } = req.params;
-    const { full_name, phone } = req.body;
+    // Lấy ID trực tiếp từ token để chặn lỗ hổng IDOR
+    const id = req.user.id;
+    const { full_name, phone, address } = req.body;
     let avatar_url = req.file ? `avatars/${req.file.filename}` : undefined;
-    
+
     let sql = "UPDATE Users SET full_name = ?, phone = ?";
     const params = [full_name, phone];
-    
+
+    if (address !== undefined) {
+        sql += ", address = ?";
+        params.push(address);
+    }
+
     if (avatar_url !== undefined) {
         sql += ", avatar_url = ?";
         params.push(avatar_url);
     }
     sql += " WHERE id = ?";
     params.push(id);
-    
+
     db.query(sql, params, (err, result) => {
         if (err) return res.status(500).json({ success: false, message: err.message });
-        
-        db.query("SELECT id, full_name, email, phone, avatar_url, role FROM Users WHERE id = ?", [id], (err, results) => {
+
+        db.query("SELECT id, full_name, email, phone, address, avatar_url, role FROM Users WHERE id = ?", [id], (err, results) => {
             if (err) return res.status(500).json({ success: false, message: err.message });
-            res.json({ 
-                success: true, 
+            res.json({
+                success: true,
                 message: "Cập nhật thành công",
                 data: results[0]
             });
@@ -147,26 +134,27 @@ const updateProfile = (req, res) => {
 
 const changePassword = (req, res) => {
     const db = req.app.get('db');
-    const { id, old_password, new_password } = req.body;
-    
+    const id = req.user.id;
+    const { old_password, new_password } = req.body;
+
     if (!old_password || !new_password) {
         return res.status(400).json({ success: false, message: "Vui lòng nhập mật khẩu cũ và mới" });
     }
-    
+
     db.query("SELECT password_hash FROM Users WHERE id = ?", [id], async (err, results) => {
         if (err) return res.status(500).json({ success: false, message: err.message });
         if (results.length === 0) return res.status(404).json({ success: false, message: "Không tìm thấy người dùng" });
-        
+
         const isMatch = await bcrypt.compare(old_password, results[0].password_hash);
         if (!isMatch) {
             return res.status(400).json({ success: false, message: "Mật khẩu cũ không chính xác" });
         }
-        
+
         try {
             const newHash = await bcrypt.hash(new_password, 10);
             db.query("UPDATE Users SET password_hash = ? WHERE id = ?", [newHash, id], (updateErr) => {
-                 if (updateErr) return res.status(500).json({ success: false, message: updateErr.message });
-                 res.json({ success: true, message: "Đổi mật khẩu thành công!" });
+                if (updateErr) return res.status(500).json({ success: false, message: updateErr.message });
+                res.json({ success: true, message: "Đổi mật khẩu thành công!" });
             });
         } catch (hashError) {
             res.status(500).json({ success: false, message: "Lỗi mã hoá mật khẩu" });
@@ -174,5 +162,4 @@ const changePassword = (req, res) => {
     });
 };
 
-module.exports = { getAllUsers, login, register, getProfile, updateProfile, changePassword };
-
+module.exports = { login, register, getProfile, updateProfile, changePassword };

@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const categoryController = require('../../controller/category/category.controller');
 
-// Định nghĩa route lấy danh sách danh mục
+// Lấy danh sách toàn bộ danh mục sản phẩm
 router.get('/', categoryController.getAllCategories);
 
 module.exports = router;

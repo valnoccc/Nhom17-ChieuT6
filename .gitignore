@@ -5,6 +5,8 @@ build/
 
 # Các tệp cấu hình cá nhân và bảo mật
 .env
+.env.local
+.env.production
 .DS_Store
 Thumbs.db
 
@@ -12,13 +14,35 @@ Thumbs.db
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+logs/
+*.log
 
 # Các tệp tạm của trình soạn thảo
 .vscode/
 .idea/
 *.swp
-# Các file test và documentation
+*.swo
+*~
+
+# File test và development
+server/create_test_user.js
+server/test_backend.js
 server/create-demo-users.js
 server/create-test-token.js
 server/test-admin.js
+server/test_put.js
 server/.md/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
