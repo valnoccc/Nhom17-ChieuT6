@@ -1,6 +1,6 @@
 const checkout = async (req, res) => {
     // 1. Lấy pool trực tiếp (BỎ .promise() vì index.js đã dùng mysql2/promise)
-    const pool = req.app.get('db'); 
+    const pool = req.app.get('db');
     const { user_id, shipping_address, items } = req.body;
 
     let connection;
@@ -57,21 +57,21 @@ const checkout = async (req, res) => {
 
         // XÁC NHẬN GIAO DỊCH
         await connection.commit();
-        
-        res.json({ 
-            success: true, 
-            message: "Đặt hàng thành công!", 
-            order_id: orderId 
+
+        res.json({
+            success: true,
+            message: "Đặt hàng thành công!",
+            order_id: orderId
         });
 
     } catch (error) {
         // HỦY GIAO DỊCH NẾU CÓ LỖI
         if (connection) await connection.rollback();
-        
+
         console.error("Lỗi giao dịch:", error.message);
-        res.status(400).json({ 
-            success: false, 
-            message: error.message 
+        res.status(400).json({
+            success: false,
+            message: error.message
         });
 
     } finally {
@@ -80,4 +80,36 @@ const checkout = async (req, res) => {
     }
 };
 
-module.exports = { checkout };
+// Lấy danh sách đơn hàng của người dùng
+const getOrderHistory = (req, res) => {
+    const db = req.app.get('db');
+
+    // Ưu tiên lấy từ req.user (nếu có Auth), nếu không thì lấy từ query (để test)
+    // Điều này sẽ giải quyết lỗi "reading 'id' of undefined"
+    const userId = (req.user && req.user.id) ? req.user.id : req.query.userId;
+
+    if (!userId) {
+        return res.status(400).json({ success: false, message: "Thiếu thông tin người dùng!" });
+    }
+
+    const sql = `
+        SELECT 
+            o.id, o.total_amount, o.status, o.created_at,
+            GROUP_CONCAT(p.name SEPARATOR ', ') AS product_names
+        FROM orders o
+        JOIN order_details od ON o.id = od.order_id
+        JOIN products p ON od.product_id = p.id
+        WHERE o.user_id = ?
+        GROUP BY o.id
+        ORDER BY o.created_at DESC
+    `;
+
+    db.query(sql, [userId], (err, results) => {
+        if (err) {
+            console.error("❌ Lỗi SQL Order History:", err.message);
+            return res.status(500).json({ success: false, error: err.message });
+        }
+        res.json({ success: true, data: results });
+    });
+};
+module.exports = { checkout, getOrderHistory };
