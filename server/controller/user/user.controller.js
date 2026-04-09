@@ -121,6 +121,14 @@ const updateProfile = (req, res) => {
     const { full_name, phone } = req.body;
     let avatar_url = req.file ? `avatars/${req.file.filename}` : undefined;
     
+    // Validation đầu vào
+    if (!full_name || full_name.trim() === '') {
+        return res.status(400).json({ 
+            success: false, 
+            message: "Họ và tên không được để trống!" 
+        });
+    }
+
     let sql = "UPDATE users SET full_name = ?, phone = ?";
     const params = [full_name, phone];
     

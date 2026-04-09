@@ -86,10 +86,14 @@ const ProfilePage = () => {
         let local = JSON.parse(localStorage.getItem('user')) || {};
         local = {
           ...local,
+          full_name: updatedUser.full_name, // Fix here: Header checks full_name first
           name: updatedUser.full_name,
           avatar_url: updatedUser.avatar_url
         };
         localStorage.setItem('user', JSON.stringify(local));
+
+        // Phản chiếu dữ liệu lên state cục bộ luôn nếu không muốn reload
+        window.dispatchEvent(new Event('storage'));
 
         // Xoá previewUrl để hiển thị lại ảnh online
         setPreviewUrl('');
@@ -98,8 +102,9 @@ const ProfilePage = () => {
         setTimeout(() => window.location.reload(), 1000);
       }
     } catch (error) {
-      toast.error("Có lỗi xảy ra khi cập nhật!");
-      console.error(error);
+      const errorMsg = error.response?.data?.message || "Có lỗi kết nối hoặc server không phản hồi!";
+      toast.error(errorMsg);
+      console.error("Lỗi cập nhật:", error);
     } finally {
       setIsSaving(false);
     }
