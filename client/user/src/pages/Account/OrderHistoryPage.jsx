@@ -73,7 +73,7 @@ const OrderHistoryPage = () => {
     const orderId = cancelModal.orderId;
     setCancelModal({ isOpen: false, orderId: null });
     try {
-      const response = await axios.put(`http://localhost:10000/api/orders/${orderId}/cancel`);
+      const response = await axios.put(`https://nhom17-chieut6.onrender.com/api/orders/${orderId}/cancel`);
       if (response.data && response.data.success) {
         toast.success("✅ Hủy đơn hàng thành công!");
         setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: 'Cancelled' } : o));
@@ -98,7 +98,7 @@ const OrderHistoryPage = () => {
         }
 
         // 2. Gửi request kèm Header Authorization
-        const response = await axios.get("http://localhost:10000/api/orders/history", {
+        const response = await axios.get("https://nhom17-chieut6.onrender.com/api/orders/history", {
           headers: {
             Authorization: `Bearer ${token}` // Đây là phần quan trọng nhất
           }
