@@ -190,7 +190,7 @@ const CheckoutPage = () => {
 
         const addressDetail = `${formData.address}, ${formData.ward}, ${formData.district}, ${formData.province}`;
 
-        const response = await axios.post("http://localhost:10000/api/orders/checkout", {
+        const response = await axios.post("https://nhom17-chieut6.onrender.com/api/orders/checkout", {
             shipping_address: addressDetail,
             items: formattedItems
         }, {
