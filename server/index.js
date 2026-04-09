@@ -1,4 +1,5 @@
 require('dotenv').config();
+
 const express = require('express');
 // SỬA: Dùng mysql2 bản thường (hỗ trợ Callback) thay vì /promise
 const mysql = require('mysql2');
@@ -62,7 +63,7 @@ app.use('/', adminRoute);
 // Cho phép truy cập thư mục public
 app.use('/public', express.static('public'));
 const PORT = process.env.PORT || 10000;
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, "0.0.0.0", () => {
     console.log(`\n🚀 Server Nhóm 17 chạy tại: http://localhost:${PORT}`);
 });
 server.on("error", (e) => {

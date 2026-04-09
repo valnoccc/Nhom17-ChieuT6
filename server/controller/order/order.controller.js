@@ -65,21 +65,21 @@ const checkout = async (req, res) => {
 
         // XÁC NHẬN GIAO DỊCH
         await connection.commit();
-        
-        res.json({ 
-            success: true, 
-            message: "Đặt hàng thành công!", 
-            order_id: orderId 
+
+        res.json({
+            success: true,
+            message: "Đặt hàng thành công!",
+            order_id: orderId
         });
 
     } catch (error) {
         // HỦY GIAO DỊCH NẾU CÓ LỖI
         if (connection) await connection.rollback();
-        
+
         console.error("Lỗi giao dịch:", error.message);
-        res.status(400).json({ 
-            success: false, 
-            message: error.message 
+        res.status(400).json({
+            success: false,
+            message: error.message
         });
 
     } finally {
@@ -163,4 +163,29 @@ const cancelOrder = (req, res) => {
     });
 };
 
-module.exports = { checkout, getUserOrders, cancelOrder };
+const getOrderHistory = (req, res) => {
+    const db = req.app.get('db');
+    const userId = req.user.id; // Lấy từ verifyToken
+
+    const sql = `
+        SELECT 
+            o.id, 
+            o.total_amount, 
+            o.status, 
+            o.created_at,
+            GROUP_CONCAT(p.name SEPARATOR ', ') AS product_names
+        FROM orders o
+        JOIN order_details od ON o.id = od.order_id
+        JOIN products p ON od.product_id = p.id
+        WHERE o.user_id = ?
+        GROUP BY o.id
+        ORDER BY o.created_at DESC
+    `;
+
+    db.query(sql, [userId], (err, results) => {
+        if (err) return res.status(500).json({ success: false, error: err.message });
+        res.json({ success: true, data: results });
+    });
+};
+
+module.exports = { checkout, getUserOrders, cancelOrder, getOrderHistory };

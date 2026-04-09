@@ -43,7 +43,7 @@ const LoginPage = () => {
       });
 
       if (res.data.success) {
-        toast.success("🚀 Đăng nhập thành công!");
+        toast.success("Đăng nhập thành công!");
         localStorage.setItem('user', JSON.stringify({
           id: res.data.user.id,
           username: res.data.user.email,
@@ -59,7 +59,7 @@ const LoginPage = () => {
         }, 1000);
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || "⚠️ Vui lòng kiểm tra lại thông tin đăng nhập!");
+      toast.error(err.response?.data?.message || "Vui lòng kiểm tra lại thông tin đăng nhập!");
     }
   };
 
