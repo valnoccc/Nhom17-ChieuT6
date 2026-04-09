@@ -49,12 +49,12 @@ const OrderHistoryPage = () => {
 
     try {
       // Bắt buộc dùng id/product_id hợp lệ
-      const addPromises = items.map(item => 
+      const addPromises = items.map(item =>
         addToCart({ id: item.id || item.product_id, name: item.name }, item.quantity, false)
       );
-      
+
       await Promise.all(addPromises);
-      
+
       toast.success("🛒 Đã dồn thành công các món vào giỏ hàng!");
       navigate('/cart');
     } catch (error) {
@@ -73,7 +73,7 @@ const OrderHistoryPage = () => {
     const orderId = cancelModal.orderId;
     setCancelModal({ isOpen: false, orderId: null });
     try {
-      const response = await axios.put(`http://localhost:10000/api/orders/${orderId}/cancel`);
+      const response = await axios.put(`https://nhom17-chieut6.onrender.com/api/orders/${orderId}/cancel`);
       if (response.data && response.data.success) {
         toast.success("✅ Hủy đơn hàng thành công!");
         setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: 'Cancelled' } : o));
@@ -110,13 +110,13 @@ const OrderHistoryPage = () => {
       } catch (error) {
         console.error("Lỗi:", error.response);
         if (error.response && [401, 403].includes(error.response.status)) {
-           toast.error("Phiên đăng nhập hết hạn! Đang chuyển hướng...");
-           setTimeout(() => {
-             localStorage.clear();
-             navigate('/login');
-           }, 1000);
+          toast.error("Phiên đăng nhập hết hạn! Đang chuyển hướng...");
+          setTimeout(() => {
+            localStorage.clear();
+            navigate('/login');
+          }, 1000);
         } else {
-           toast.error(error.response?.data?.message || "Không thể tải lịch sử đơn hàng!");
+          toast.error(error.response?.data?.message || "Không thể tải lịch sử đơn hàng!");
         }
       } finally {
         setIsLoading(false);
@@ -224,7 +224,7 @@ const OrderHistoryPage = () => {
                       {order.items && order.items.map((item, idx) => (
                         <div key={idx} className="flex gap-4 items-center bg-gray-50 p-2 rounded-lg">
                           <div className="w-16 h-16 bg-white rounded border flex items-center justify-center overflow-hidden flex-shrink-0">
-                             <img src={getImageUrl(item.thumbnail_url || item.image)} alt={item.name} className="w-full h-full object-contain p-1" />
+                            <img src={getImageUrl(item.thumbnail_url || item.image)} alt={item.name} className="w-full h-full object-contain p-1" />
                           </div>
                           <div className="flex-1">
                             <p className="text-[14px] font-bold text-gray-800 line-clamp-2">{item.name}</p>
@@ -246,7 +246,7 @@ const OrderHistoryPage = () => {
                           Xem chi tiết
                         </Link>
                         {order.status?.toUpperCase() === 'DELIVERED' && (
-                          <button 
+                          <button
                             onClick={() => handleReorder(order.items)}
                             disabled={isReordering}
                             className="px-5 py-2.5 bg-[#ed1c24] text-white rounded-lg font-bold text-[13px] hover:bg-red-700 transition-colors shadow-sm disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center min-w-[100px]"
@@ -255,7 +255,7 @@ const OrderHistoryPage = () => {
                           </button>
                         )}
                         {order.status?.toUpperCase() === 'PENDING' && (
-                          <button 
+                          <button
                             onClick={() => handleCancelOrderClick(order.id)}
                             className="px-5 py-2.5 border border-red-500 text-red-500 bg-white rounded-lg font-bold text-[13px] hover:bg-red-50 transition-colors shadow-sm"
                           >
@@ -275,32 +275,32 @@ const OrderHistoryPage = () => {
 
       {cancelModal.isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-           <motion.div 
-             initial={{ opacity: 0, scale: 0.9 }} 
-             animate={{ opacity: 1, scale: 1 }} 
-             exit={{ opacity: 0, scale: 0.9 }}
-             className="bg-white rounded-2xl p-6 md:p-8 w-[90%] max-w-[400px] shadow-2xl flex flex-col items-center text-center"
-           >
-             <div className="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mb-4">
-                <FaTimesCircle className="text-3xl" />
-             </div>
-             <h3 className="text-xl font-black text-gray-800 mb-2">Hủy đơn hàng?</h3>
-             <p className="text-gray-500 text-sm mb-6">Bạn có chắc chắn muốn hủy đơn hàng #{cancelModal.orderId} không? Hành động này không thể hoàn tác.</p>
-             <div className="flex gap-3 w-full">
-                <button 
-                  onClick={() => setCancelModal({ isOpen: false, orderId: null })}
-                  className="flex-1 py-3 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-colors"
-                >
-                  Không, giữ lại
-                </button>
-                <button 
-                  onClick={confirmCancelOrder}
-                  className="flex-1 py-3 bg-[#ed1c24] text-white font-bold rounded-xl hover:bg-red-700 transition-colors shadow-md"
-                >
-                  Có, hủy đơn
-                </button>
-             </div>
-           </motion.div>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="bg-white rounded-2xl p-6 md:p-8 w-[90%] max-w-[400px] shadow-2xl flex flex-col items-center text-center"
+          >
+            <div className="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mb-4">
+              <FaTimesCircle className="text-3xl" />
+            </div>
+            <h3 className="text-xl font-black text-gray-800 mb-2">Hủy đơn hàng?</h3>
+            <p className="text-gray-500 text-sm mb-6">Bạn có chắc chắn muốn hủy đơn hàng #{cancelModal.orderId} không? Hành động này không thể hoàn tác.</p>
+            <div className="flex gap-3 w-full">
+              <button
+                onClick={() => setCancelModal({ isOpen: false, orderId: null })}
+                className="flex-1 py-3 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-colors"
+              >
+                Không, giữ lại
+              </button>
+              <button
+                onClick={confirmCancelOrder}
+                className="flex-1 py-3 bg-[#ed1c24] text-white font-bold rounded-xl hover:bg-red-700 transition-colors shadow-md"
+              >
+                Có, hủy đơn
+              </button>
+            </div>
+          </motion.div>
         </div>
       )}
     </PageWrapper>

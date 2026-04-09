@@ -46,9 +46,6 @@ const ProductDetailPage = () => {
         // Gọi trực tiếp API với ID từ URL
         const response = await axios.get(`https://nhom17-chieut6.onrender.com/api/products/${id}`);
 
-        //test trên local
-        //const response = await axios.get(`https://nhom17-chieut6.onrender.com/api/products/${id}`);
-
         // Kiểm tra dữ liệu trả về từ server
         if (response.data && response.data.success) {
           const productData = response.data.data;
@@ -56,7 +53,7 @@ const ProductDetailPage = () => {
           setProduct(productData);
 
           // Ưu tiên hiển thị ảnh thumbnail_url trước vì nó là ảnh đại diện (ảnh 1)
-          const defaultImg = productData.thumbnail_url || 
+          const defaultImg = productData.thumbnail_url ||
             ((productData.all_images && productData.all_images.length > 0) ? productData.all_images[0] : PLACEHOLDER_IMG);
 
           setActiveImage(defaultImg);
