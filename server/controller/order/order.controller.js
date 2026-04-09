@@ -1,6 +1,6 @@
 const checkout = async (req, res) => {
     // 1. Lấy pool trực tiếp và sử dụng đối tượng promise()
-    const pool = req.app.get('db').promise(); 
+    const pool = req.app.get('db').promise();
     const { user_id, shipping_address, items } = req.body;
 
     let connection;
@@ -97,10 +97,10 @@ const getUserOrders = (req, res) => {
     }
 
     const queryOrders = "SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC";
-    
+
     db.query(queryOrders, [userId], (err, orders) => {
         if (err) return res.status(500).json({ success: false, message: "Lỗi lấy danh sách đơn: " + err.message });
-        
+
         if (orders.length === 0) {
             return res.json({ success: true, data: [] });
         }
@@ -112,7 +112,7 @@ const getUserOrders = (req, res) => {
             JOIN products p ON od.product_id = p.id 
             WHERE od.order_id IN (?)
         `;
-        
+
         db.query(queryDetails, [orderIds], (err2, details) => {
             if (err2) return res.status(500).json({ success: false, message: "Lỗi lấy chi tiết đơn: " + err2.message });
 
