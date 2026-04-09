@@ -499,7 +499,7 @@ function ProductList() {
                             required
                             value={formData.name}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                            className="mt-1 text-white block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            className="mt-1 bg-black text-white block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                           />
                         </div>
                         <div>
@@ -507,7 +507,7 @@ function ProductList() {
                           <select
                             value={formData.category_id}
                             onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
-                            className="text-white mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            className="text-white bg-black mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                           >
                             <option value="">Select Category</option>
                             {categories.map((category) => (
@@ -525,7 +525,7 @@ function ProductList() {
                             required
                             value={formData.price}
                             onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                            className="text-white mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            className="text-white bg-black mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                           />
                         </div>
                         <div>
@@ -534,7 +534,7 @@ function ProductList() {
                             type="number"
                             value={formData.stock_quantity}
                             onChange={(e) => setFormData({ ...formData, stock_quantity: e.target.value })}
-                            className="text-white mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            className="text-white bg-black mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                           />
                         </div>
                         <div className="col-span-2">
@@ -543,7 +543,7 @@ function ProductList() {
                             rows="2"
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                            className="text-white mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            className="text-white bg-black mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                           />
                         </div>
                         <div className="col-span-2">
@@ -552,7 +552,7 @@ function ProductList() {
                             type="url"
                             value={formData.thumbnail_url}
                             onChange={(e) => setFormData({ ...formData, thumbnail_url: e.target.value })}
-                            className="text-white mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            className="text-white bg-black mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                             placeholder="https://example.com/image.jpg"
                           />
                         </div>

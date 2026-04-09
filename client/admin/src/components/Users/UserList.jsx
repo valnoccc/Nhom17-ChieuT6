@@ -240,7 +240,7 @@ function UserList() {
                       value={user.role}
                       onChange={(e) => handleRoleChange(user.id, e.target.value)}
                       disabled={updatingRole === user.id}
-                      className="block w-full pl-3 pr-10 py-2 text-white border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                      className="block bg-black w-full pl-3 pr-10 py-2 text-white border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
                     >
                       <option value="customer">Customer</option>
                       <option value="admin">Admin</option>

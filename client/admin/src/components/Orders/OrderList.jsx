@@ -384,7 +384,7 @@ function OrderList() {
                       <select
                         value={newStatus}
                         onChange={(e) => setNewStatus(e.target.value)}
-                        className="text-white mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                        className="text-white bg-black mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                       >
                         <option value="">Select Status</option>
                         <option value="Pending">Pending</option>
