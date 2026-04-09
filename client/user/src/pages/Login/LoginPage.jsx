@@ -37,7 +37,7 @@ const LoginPage = () => {
     }
 
     try {
-      const res = await axios.post('https://nhom17-chieut6.onrender.com/api/users/login', {
+      const res = await axios.post('http://localhost:10000/api/users/login', {
         email: formData.username,
         password: formData.password
       });

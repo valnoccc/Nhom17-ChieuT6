@@ -1,7 +1,8 @@
 const checkout = async (req, res) => {
     // 1. Lấy pool trực tiếp và sử dụng đối tượng promise()
     const pool = req.app.get('db').promise();
-    const { user_id, shipping_address, items } = req.body;
+    const { shipping_address, items } = req.body;
+    const user_id = req.user.id; // Trích xuất user_id từ Token hợp lệ (Tuyệt đối không lấy từ Client payload)
 
     let connection;
 
@@ -33,6 +34,7 @@ const checkout = async (req, res) => {
         }
 
         // BƯỚC 2: TẠO ĐƠN HÀNG (Bảng orders)
+        console.log("User ID lấy từ token:", user_id);
         const [orderResult] = await connection.query(
             "INSERT INTO orders (user_id, total_amount, shipping_address, status) VALUES (?, ?, ?, 'Pending')",
             [user_id, total_amount, shipping_address]
@@ -167,24 +169,45 @@ const getOrderHistory = (req, res) => {
     const db = req.app.get('db');
     const userId = req.user.id; // Lấy từ verifyToken
 
-    const sql = `
-        SELECT 
-            o.id, 
-            o.total_amount, 
-            o.status, 
-            o.created_at,
-            GROUP_CONCAT(p.name SEPARATOR ', ') AS product_names
-        FROM orders o
-        JOIN order_details od ON o.id = od.order_id
-        JOIN products p ON od.product_id = p.id
-        WHERE o.user_id = ?
-        GROUP BY o.id
-        ORDER BY o.created_at DESC
-    `;
+    const queryOrders = "SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC";
 
-    db.query(sql, [userId], (err, results) => {
-        if (err) return res.status(500).json({ success: false, error: err.message });
-        res.json({ success: true, data: results });
+    db.query(queryOrders, [userId], (err, orders) => {
+        if (err) return res.status(500).json({ success: false, message: "Lỗi hệ thống: " + err.message });
+
+        if (orders.length === 0) {
+            return res.json({ success: true, data: [] });
+        }
+
+        const orderIds = orders.map(o => o.id);
+        const queryDetails = `
+            SELECT od.order_id, od.product_id, od.quantity, od.unit_price as price, p.name, p.thumbnail_url as image 
+            FROM order_details od 
+            JOIN products p ON od.product_id = p.id 
+            WHERE od.order_id IN (?)
+        `;
+
+        db.query(queryDetails, [orderIds], (err2, details) => {
+            if (err2) return res.status(500).json({ success: false, message: "Lỗi hệ thống: " + err2.message });
+
+            const formattedOrders = orders.map(order => {
+                return {
+                    id: order.id,
+                    total_amount: order.total_amount,
+                    status: order.status,
+                    created_at: order.created_at,
+                    items: details.filter(d => d.order_id === order.id).map(item => ({
+                        id: item.product_id, // Quan trọng: Để hàm Reorder gửi ID chính xác lên giỏ
+                        product_id: item.product_id,
+                        name: item.name,
+                        price: item.price,
+                        quantity: item.quantity,
+                        thumbnail_url: item.image
+                    }))
+                };
+            });
+
+            res.json({ success: true, data: formattedOrders });
+        });
     });
 };
 

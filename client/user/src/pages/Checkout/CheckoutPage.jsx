@@ -149,9 +149,34 @@ const CheckoutPage = () => {
       setIsProcessing(true); // Bật hiệu ứng Loading
 
       try {
-        const user = JSON.parse(localStorage.getItem('user'));
-        const userId = user && user.id ? user.id : 0;
+        const token = localStorage.getItem('token');
+        console.log("Token đang dùng:", token);
         
+        if (!token) {
+          toast.error("Vui lòng đăng nhập để thanh toán!");
+          navigate('/login');
+          return;
+        }
+
+        // Tự động giải mã Token ở Frontend để kiểm tra xem có lấy được ID không
+        try {
+           const payloadBase64 = token.split('.')[1];
+           const decodedJson = atob(payloadBase64);
+           const payload = JSON.parse(decodedJson);
+           if (!payload.id) {
+               console.error("Token hiện tại bị lỗi, KHÔNG CÓ TRƯỜNG ID! Bắt buộc đăng xuất.");
+               localStorage.clear();
+               toast.error("Phiên đăng nhập bị hỏng, vui lòng đăng nhập lại!");
+               navigate('/login');
+               return;
+           }
+        } catch(error) {
+           console.error("Lỗi parse Token:", error);
+           localStorage.clear();
+           navigate('/login');
+           return;
+        }
+
         const formattedItems = cartItems.map(item => {
             let pid = 1;
             const match = String(item.id).match(/\d+/);
@@ -165,16 +190,19 @@ const CheckoutPage = () => {
 
         const addressDetail = `${formData.address}, ${formData.ward}, ${formData.district}, ${formData.province}`;
 
-        const response = await axios.post("https://nhom17-chieut6.onrender.com/api/orders/checkout", {
-            user_id: userId,
+        const response = await axios.post("http://localhost:10000/api/orders/checkout", {
             shipping_address: addressDetail,
             items: formattedItems
+        }, {
+            headers: {
+               Authorization: `Bearer ${token}`
+            }
         });
 
         if (response.data.success) {
             toast.success("🚀 Đặt hàng thành công!");
             
-            // Clear frontend cart
+            // Clear frontend cart only
             setCartItems([]);
             localStorage.removeItem('elmich_cart');
             
@@ -182,8 +210,16 @@ const CheckoutPage = () => {
             navigate('/account/orders'); 
         }
       } catch (err) {
-         console.error(err);
-         toast.error(err.response?.data?.message || "Hệ thống gặp lỗi nội bộ khi xử lý thanh toán!");
+         console.error("Lỗi Checkout:", err.response);
+         if (err.response && [401, 403].includes(err.response.status)) {
+            toast.error("Phiên đăng nhập hết hạn! Vui lòng đăng nhập lại để thanh toán.");
+            setTimeout(() => {
+              localStorage.clear();
+              navigate('/login');
+            }, 1000);
+         } else {
+            toast.error(err.response?.data?.message || "Hệ thống gặp lỗi nội bộ khi xử lý thanh toán!");
+         }
       } finally {
          setIsProcessing(false);
       }

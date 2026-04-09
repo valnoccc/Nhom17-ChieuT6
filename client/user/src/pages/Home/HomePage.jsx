@@ -28,7 +28,7 @@ const HomePage = () => {
             {/* Component tự gọi API nên chỉ cần truyền mỗi Title */}
             <ProductGrid title="Sản phẩm bán chạy" />
 
-            {/* ================= BANNER QUẢNG CÁO NGANG ================= */}
+            {/* ================= BANNER ================= */}
             <motion.div 
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
