@@ -64,7 +64,6 @@ app.use('/public', express.static('public'));
 const PORT = process.env.PORT || 10000;
 const server = app.listen(PORT, () => {
     console.log(`\n🚀 Server Nhóm 17 chạy tại: http://localhost:${PORT}`);
-    setInterval(() => console.log('Ping...'), 10000); // Giữ server sống
 });
 server.on("error", (e) => {
     if (e.code === 'EADDRINUSE') {
